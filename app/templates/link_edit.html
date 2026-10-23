@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Edit /{{ link.shorturl }} — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+{% block body_class %}auth-page{% endblock %}
+{% block content %}
+  <section class="auth-shell auth-shell-single">
+    <div class="glass-card auth-card edit-card">
+      <a class="back-link" href="{% url 'dashboard' %}">← Back to dashboard</a>
+      <span class="eyebrow">Edit link</span>
+      <h1>/{{ link.shorturl }}</h1>
+      <p class="auth-subtitle">The short URL and QR code stay the same when you change the destination.</p>
+      <form method="post" class="auth-form">
+        {% csrf_token %}
+        {% for error in form.non_field_errors %}<div class="field-error form-error" role="alert">{{ error }}</div>{% endfor %}
+        <div class="field-group"><label for="{{ form.longurl.id_for_label }}">Destination URL</label><input id="{{ form.longurl.id_for_label }}" name="longurl" type="url" value="{{ form.longurl.value|default_if_none:'' }}" required>{% for error in form.longurl.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+        <div class="field-group"><label for="{{ form.campaign.id_for_label }}">Campaign <span>Optional</span></label>{{ form.campaign }}{% for error in form.campaign.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+        <div class="field-group"><label for="{{ form.active_from.id_for_label }}">Activation date and time <span>Optional</span></label>{{ form.active_from }}<small>Clear this field to activate immediately.</small>{% for error in form.active_from.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+        <div class="field-group"><label for="{{ form.expires_at.id_for_label }}">Expiry date and time <span>Optional</span></label>{{ form.expires_at }}<small>Clear this field to keep the link active indefinitely.</small>{% for error in form.expires_at.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+        <div class="field-group checkbox-field"><label for="{{ form.is_enabled.id_for_label }}">{{ form.is_enabled }} Enabled</label>{% for error in form.is_enabled.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+        <div class="field-group checkbox-field"><label for="{{ form.conversion_tracking_enabled.id_for_label }}">{{ form.conversion_tracking_enabled }} Conversion attribution</label><small>Add an opaque ol_click token to redirect destinations.</small>{% for error in form.conversion_tracking_enabled.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>
+        <div class="button-row"><button class="button button-primary" type="submit">Save changes</button><a class="button button-secondary" href="{% url 'dashboard' %}">Cancel</a></div>
+      </form>
+    </div>
+  </section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Anomalies — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell"><header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>Explainable anomalies</h1><p>Rule-based findings compare recent traffic with a transparent historical baseline. They are signals, not automatic enforcement.</p></div><form method="post" action="{% url 'anomaly_scan' %}">{% csrf_token %}<button class="button button-primary" type="submit">Run scan</button></form></header>
+  <div class="glass-card table-wrap"><table class="ops-table"><thead><tr><th>Detected</th><th>Finding</th><th>Scope</th><th>Baseline</th><th>Observed</th><th>Explanation</th></tr></thead><tbody>{% for anomaly in anomalies %}<tr><td>{{ anomaly.detected_at|date:"M j, H:i" }}</td><td><span class="status-pill">{{ anomaly.get_severity_display }}</span><small>{{ anomaly.get_anomaly_type_display }}</small></td><td>{% if anomaly.link %}/{{ anomaly.link.shorturl }}{% elif anomaly.campaign %}{{ anomaly.campaign.name }}{% else %}Workspace{% endif %}</td><td>{{ anomaly.baseline_value|floatformat:2 }}</td><td>{{ anomaly.observed_value|floatformat:2 }}</td><td>{{ anomaly.explanation }}</td></tr>{% empty %}<tr><td colspan="6">No anomalies detected.</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

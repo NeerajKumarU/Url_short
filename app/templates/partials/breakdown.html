@@ -1,0 +1,5 @@
+<div class="breakdown-list">
+  {% for row in rows %}
+    <div class="breakdown-row"><div><span>{{ row.label }}</span><strong>{{ row.value }}</strong></div><div class="progress-track"><i style="width: {{ row.percent }}%"></i></div></div>
+  {% empty %}<p class="muted">{{ empty_text }}</p>{% endfor %}
+</div>

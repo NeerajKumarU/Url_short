@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}OrbitLink — Short links with a signal{% endblock %}
+{% block content %}
+  <section class="hero shell">
+    <div class="hero-copy">
+      <span class="eyebrow"><span class="status-dot"></span>Fast, focused link intelligence</span>
+      <h1>Turn every link into a <span class="gradient-text">clear signal.</span></h1>
+      <p class="hero-lede">Create memorable short links, control when they expire, and understand every click—all from one focused workspace.</p>
+      <div class="hero-actions">
+        {% if user.is_authenticated %}
+          <a class="button button-primary" href="#create-link">Create a link</a>
+          <a class="button button-secondary" href="{% url 'dashboard' %}">View dashboard</a>
+        {% else %}
+          <a class="button button-primary" href="{% url 'register' %}">Start shortening free</a>
+          <a class="button button-secondary" href="{% url 'login' %}">Log in</a>
+        {% endif %}
+      </div>
+      <div class="trust-row" aria-label="Product benefits">
+        <span>✓ Custom aliases</span><span>✓ QR ready</span><span>✓ Private analytics</span>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <div class="visual-glow"></div>
+      <div class="preview-card preview-main">
+        <div class="preview-top"><span class="preview-icon">↗</span><span>Campaign link</span><span class="badge badge-active">Active</span></div>
+        <strong>orbit.link/mobile-sale</strong>
+        <span class="preview-url">example.com/products/phone</span>
+        <div class="mini-stats"><span><b>2,481</b> clicks</span><span><b>38%</b> mobile</span></div>
+      </div>
+      <div class="preview-card preview-float"><span>Today</span><strong>+24.8%</strong><div class="sparkline"><i></i><i></i><i></i><i></i><i></i><i></i></div></div>
+    </div>
+  </section>
+
+  {% if user.is_authenticated %}
+    <section class="shell creator-section" id="create-link" aria-labelledby="creator-title">
+      <div class="section-heading">
+        <span class="eyebrow">Create link</span>
+        <h2 id="creator-title">Make the next click count.</h2>
+        <p>Use a memorable alias, set an optional expiry, or let OrbitLink handle it.</p>
+      </div>
+      <div class="glass-card creator-card">
+        {% if created_short_url %}
+          <div class="result-card" role="status">
+            <div><span class="result-kicker">Your link is ready</span><a href="{{ created_short_url }}" target="_blank" rel="noopener">{{ created_short_url }}</a></div>
+            <button type="button" class="button button-secondary copy-button" data-copy="{{ created_short_url }}">Copy link</button>
+          </div>
+        {% endif %}
+        <form method="post" action="{% url 'create_short_url' %}" class="link-form">
+          {% csrf_token %}
+          {% for error in form.non_field_errors %}<div class="field-error form-error" role="alert">{{ error }}</div>{% endfor %}
+          <div class="field-group field-wide">
+            <label for="{{ form.longurl.id_for_label }}">Original URL</label>
+            <input id="{{ form.longurl.id_for_label }}" name="longurl" type="url" value="{{ form.longurl.value|default_if_none:'' }}" placeholder="https://example.com/your-long-url" required>
+            {% for error in form.longurl.errors %}<span class="field-error" role="alert">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="field-group">
+            <label for="{{ form.custom_alias.id_for_label }}">Custom alias <span>Optional</span></label>
+            <div class="input-prefix"><span>/</span><input id="{{ form.custom_alias.id_for_label }}" name="custom_alias" type="text" minlength="3" maxlength="50" value="{{ form.custom_alias.value|default_if_none:'' }}" pattern="[A-Za-z0-9_-]{3,50}" placeholder="mobile-sale"></div>
+            <small>Leave blank to generate one automatically.</small>
+            {% for error in form.custom_alias.errors %}<span class="field-error" role="alert">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="field-group">
+            <label for="{{ form.active_from.id_for_label }}">Activation <span>Optional</span></label>
+            <input id="{{ form.active_from.id_for_label }}" name="active_from" type="datetime-local" value="{{ form.active_from.value|default_if_none:'' }}">
+            <small>Leave blank to activate immediately.</small>
+            {% for error in form.active_from.errors %}<span class="field-error" role="alert">{{ error }}</span>{% endfor %}
+          </div>
+          <div class="field-group">
+            <label for="{{ form.expires_at.id_for_label }}">Expiry <span>Optional</span></label>
+            <input id="{{ form.expires_at.id_for_label }}" name="expires_at" type="datetime-local" value="{{ form.expires_at.value|default_if_none:'' }}">
+            <small>No expiry means your link stays active.</small>
+            {% for error in form.expires_at.errors %}<span class="field-error" role="alert">{{ error }}</span>{% endfor %}
+          </div>
+          {% if form.campaign.field.queryset.exists %}
+            <div class="field-group">
+              <label for="{{ form.campaign.id_for_label }}">Campaign <span>Optional</span></label>
+              {{ form.campaign }}
+              <small>Group this link into a workspace campaign.</small>
+              {% for error in form.campaign.errors %}<span class="field-error" role="alert">{{ error }}</span>{% endfor %}
+            </div>
+          {% endif %}
+          <div class="field-group checkbox-field"><label for="{{ form.conversion_tracking_enabled.id_for_label }}"><input id="{{ form.conversion_tracking_enabled.id_for_label }}" name="conversion_tracking_enabled" type="checkbox" {% if form.conversion_tracking_enabled.value %}checked{% endif %}> Track downstream conversions</label><small>Adds an opaque click token to the destination URL.</small></div>
+          <div class="form-submit"><button class="button button-primary" type="submit">Create short link <span aria-hidden="true">→</span></button></div>
+        </form>
+      </div>
+    </section>
+  {% else %}
+    <section class="shell feature-grid" aria-label="Product features">
+      <article class="glass-card feature-card"><span class="feature-icon">⌁</span><h2>Memorable by default</h2><p>Choose clean branded aliases or generate secure short codes in one click.</p></article>
+      <article class="glass-card feature-card"><span class="feature-icon">◫</span><h2>Scan anywhere</h2><p>Every short link has a crisp, downloadable QR code built in.</p></article>
+      <article class="glass-card feature-card"><span class="feature-icon">⌁</span><h2>Know what works</h2><p>See real click, browser, device, and referrer signals without dashboard clutter.</p></article>
+    </section>
+  {% endif %}
+{% endblock %}

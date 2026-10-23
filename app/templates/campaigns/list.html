@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Campaigns — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell">
+  <header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>Campaigns</h1><p>Organize related links and keep launch windows visible.</p></div><a class="button button-primary" href="{% url 'campaign_create' %}">+ Create campaign</a></header>
+  <div class="table-wrap glass-card">
+    <table class="ops-table"><thead><tr><th>Campaign</th><th>Status</th><th>Schedule</th><th>Links</th><th>Clicks</th><th>Conversions</th><th></th></tr></thead><tbody>
+      {% for campaign in campaigns %}<tr><td><strong>{{ campaign.name }}</strong><small>{{ campaign.description|default:"No description"|truncatechars:80 }}</small></td><td><span class="status-pill">{{ campaign.get_status_display }}</span></td><td>{{ campaign.start_at|date:"M j, Y"|default:"Any time" }} – {{ campaign.end_at|date:"M j, Y"|default:"Open ended" }}</td><td>{{ campaign.link_count }}</td><td>{{ campaign.click_count }}</td><td>{{ campaign.conversion_count }}</td><td><a href="{% url 'campaign_edit' campaign.pk %}">Edit</a><form class="inline-form" method="post" action="{% url 'campaign_submit_approval' campaign.pk %}">{% csrf_token %}<button class="text-action" type="submit">Submit approval</button></form></td></tr>
+      {% empty %}<tr><td colspan="7"><div class="empty-state"><h2>No campaigns yet</h2><p>Create one to group links and measure a launch as a whole.</p></div></td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+</section>
+{% endblock %}

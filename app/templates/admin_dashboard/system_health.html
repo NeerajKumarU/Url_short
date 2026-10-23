@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}System health — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell">
+  <header class="ops-heading"><div><span class="eyebrow">Platform runtime</span><h1>System health</h1><p>Live checks use only signals this deployment can verify. Unconfigured services are shown clearly.</p></div><div class="button-row"><a class="button button-secondary" href="{% url 'ready' %}" target="_blank">Readiness JSON</a><a class="button button-secondary" href="{% url 'metrics' %}" target="_blank">Metrics</a></div></header>
+  <div class="health-grid">{% for check in checks %}<article class="glass-card health-card"><div class="health-card-heading"><span class="health-dot health-{{ check.state }}"></span><span class="status-pill status-{{ check.state }}">{{ check.state|title }}</span></div><h2>{{ check.name }}</h2><p>{{ check.detail }}</p></article>{% endfor %}</div>
+</section>
+{% endblock %}

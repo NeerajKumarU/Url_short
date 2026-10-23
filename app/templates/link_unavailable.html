@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Link unavailable — OrbitLink{% endblock %}
+{% block content %}
+  <section class="status-page shell">
+    <div class="status-orb" aria-hidden="true">404</div>
+    <span class="eyebrow">{{ availability }}</span>
+    <h1>This link is not active.</h1>
+    <p><strong>/{{ link.shorturl }}</strong> is currently {{ availability|lower }}. Please contact its owner if you expected it to be available.</p>
+    <a class="button button-primary" href="{% url 'home' %}">Go to OrbitLink</a>
+  </section>
+{% endblock %}

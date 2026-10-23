@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Custom domains — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell"><header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>Custom domains</h1><p>Claim a branded hostname. A domain remains pending until its DNS proof is genuinely verified.</p></div><a class="button button-primary" href="{% url 'custom_domain_create' %}">+ Add domain</a></header>
+  <div class="ops-grid">{% for domain in domains %}<article class="glass-card ops-card"><div><span class="status-pill">{{ domain.get_verification_status_display }}</span><h2>{{ domain.domain }}</h2><p>{% if domain.is_default %}Default link domain{% else %}Additional domain{% endif %}</p></div><div class="dns-proof"><small>Required TXT record</small><code>{{ domain.dns_record_name }}</code><code>{{ domain.verification_token }}</code></div><form method="post" action="{% url 'custom_domain_verify' domain.pk %}">{% csrf_token %}<button class="button button-secondary" type="submit">Check verification</button></form></article>{% empty %}<div class="glass-card empty-state"><h2>No custom domains</h2><p>Add a hostname such as go.example.com to begin the verification workflow.</p></div>{% endfor %}</div>
+</section>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Dashboard — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
+{% block body_class %}dashboard-page{% endblock %}
+{% block content %}
+  <div class="dashboard-shell shell">
+    <header class="dashboard-heading">
+      <div><span class="eyebrow">{{ workspace.name }}</span><h1>Good to see you, {{ user.username }}.</h1><p>Here’s how your workspace links are performing right now.</p></div>
+      <div class="button-row">{% if workspace_role == 'OWNER' or workspace_role == 'ADMIN' %}<a class="button button-secondary" href="{% url 'approval_list' %}">Approvals</a>{% endif %}<a class="button button-secondary" href="{% url 'anomaly_list' %}">Anomalies</a><a class="button button-secondary" href="{% url 'campaign_list' %}">{{ workspace_campaigns }} campaigns</a><a class="button button-primary" href="{% url 'create_link_page' %}">+ Create link</a></div>
+    </header>
+
+    <section class="summary-grid" aria-label="Analytics summary">
+      <article class="metric-card"><span>Total links</span><strong>{{ total_links }}</strong><small>{{ active_links }} currently active</small></article>
+      <article class="metric-card metric-purple"><span>Active links</span><strong>{{ active_links }}</strong><small>{{ expired_links }} expired</small></article>
+      <article class="metric-card metric-blue"><span>Total clicks</span><strong>{{ total_clicks }}</strong><small>Across all your links</small></article>
+      <article class="metric-card metric-cyan"><span>Clicks today</span><strong id="live-clicks-today">{{ clicks_today }}</strong><small><span id="live-clicks-five">—</span> in the last 5 minutes · {{ clicks_week }} in 7 days</small></article>
+      <article class="metric-card"><span>Conversions</span><strong id="live-conversions">{{ total_conversions }}</strong><small>Attributed downstream events · refreshes every 30s</small></article>
+    </section>
+
+    <section class="dashboard-section" id="links" aria-labelledby="links-title">
+      <div class="section-title-row"><div><span class="eyebrow">Links</span><h2 id="links-title">Your recent links</h2></div><div class="button-row"><span class="count-chip">{{ total_links }} total</span><a class="button button-secondary" href="{% url 'my_links' %}">View all</a></div></div>
+      {% if links %}
+        <div class="table-wrap glass-card">
+          <table class="link-table">
+            <thead><tr><th>Link</th><th>Destination</th><th>Status</th><th>Clicks</th><th>Created / expiry</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody>
+              {% for link in links %}
+                <tr>
+                  <td><a class="short-link" href="{{ link.public_url }}" target="_blank" rel="noopener">/{{ link.shorturl }}</a><button class="icon-button copy-button" type="button" data-copy="{{ link.public_url }}" aria-label="Copy {{ link.shorturl }}">Copy</button></td>
+                  <td><span class="destination" title="{{ link.longurl }}">{{ link.longurl }}</span></td>
+                  <td><span class="badge {% if link.is_expired %}badge-expired{% else %}badge-active{% endif %}">{{ link.status_label }}</span></td>
+                  <td><strong>{{ link.count }}</strong>{% if link.last_click %}<small>Last {{ link.last_click|timesince }} ago</small>{% endif %}</td>
+                  <td><span>{{ link.created_at|date:"M j, Y" }}</span><small>{% if link.expires_at %}Expires {{ link.expires_at|date:"M j, Y · H:i" }}{% else %}Never expires{% endif %}</small></td>
+                  <td>
+                    <details class="action-menu"><summary aria-label="Actions for {{ link.shorturl }}">•••</summary><div>
+                      <a href="{% url 'redirect_short_url' link.shorturl %}" target="_blank" rel="noopener">Open</a>
+                      <a href="{% url 'qr_code' link.pk %}" target="_blank">View QR</a>
+                      <a href="{% url 'qr_code' link.pk %}?download=1">Download QR</a>
+                      <a href="{% url 'edit_short_url' link.pk %}">Edit</a>
+                      <a href="{% url 'routing_rule_list' link.pk %}">Routing</a>
+                      <a href="{% url 'experiment_list' link.pk %}">Experiments</a>
+                      <a href="{% url 'link_version_list' link.pk %}">History</a>
+                      <a href="{% url 'report_link' link.shorturl %}">Report form</a>
+                      {% if link.approval_status != 'APPROVED' %}<form method="post" action="{% url 'link_submit_approval' link.pk %}">{% csrf_token %}<button type="submit">Submit for approval</button></form>{% endif %}
+                      <a href="#analytics">Analytics</a>
+                      <form method="post" action="{% url 'delete_short_url' link.pk %}" data-confirm="Delete /{{ link.shorturl }}? This cannot be undone.">{% csrf_token %}<button type="submit">Delete</button></form>
+                    </div></details>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="glass-card empty-state"><span class="empty-icon">↗</span><h3>Your first signal starts here.</h3><p>Create a short link and its analytics will appear in this dashboard.</p><a class="button button-primary" href="{% url 'create_link_page' %}">Create your first link</a></div>
+      {% endif %}
+    </section>
+
+    <section class="dashboard-section" id="analytics" aria-labelledby="analytics-title">
+      <div class="section-title-row"><div><span class="eyebrow">Analytics</span><h2 id="analytics-title">Audience signals</h2><p>{{ human_clicks }} human · {{ bot_clicks }} bot-classified · {{ filtered_clicks }} in current view</p></div><form method="get"><label class="sr-only" for="traffic-filter">Traffic filter</label><select id="traffic-filter" name="traffic" onchange="this.form.submit()"><option value="all" {% if traffic_filter == 'all' %}selected{% endif %}>All traffic</option><option value="human" {% if traffic_filter == 'human' %}selected{% endif %}>Human traffic</option><option value="bot" {% if traffic_filter == 'bot' %}selected{% endif %}>Bot traffic</option></select></form></div>
+      <div class="analytics-grid">
+        <article class="glass-card chart-card chart-wide"><div class="chart-heading"><div><h3>Clicks over time</h3><p>Daily successful redirects</p></div><strong>{{ clicks_week }}</strong></div><div class="timeline-chart" aria-label="Click totals for the last seven days">{% for item in click_timeline %}<div class="timeline-column"><span class="bar-value">{{ item.value }}</span><div class="timeline-track"><i style="height: {% if item.value %}{{ item.percent }}{% else %}3{% endif %}%"></i></div><small>{{ item.label }}</small></div>{% endfor %}</div></article>
+        <article class="glass-card chart-card"><div class="chart-heading"><div><h3>Top links</h3><p>By lifetime clicks</p></div></div><div class="rank-list">{% for link in top_links %}<div><span><b>/{{ link.shorturl }}</b><small>{{ link.longurl|truncatechars:34 }}</small></span><strong>{{ link.count }}</strong></div>{% empty %}<p class="muted">No click data yet.</p>{% endfor %}</div></article>
+        <article class="glass-card chart-card"><div class="chart-heading"><div><h3>Browsers</h3><p>Where visitors browse</p></div></div>{% include "partials/breakdown.html" with rows=browser_breakdown empty_text="Browser data will appear after a click." %}</article>
+        <article class="glass-card chart-card"><div class="chart-heading"><div><h3>Devices</h3><p>Screen context</p></div></div>{% include "partials/breakdown.html" with rows=device_breakdown empty_text="Device data will appear after a click." %}</article>
+        <article class="glass-card chart-card"><div class="chart-heading"><div><h3>Referrers</h3><p>How visitors arrive</p></div></div>{% include "partials/breakdown.html" with rows=referrer_breakdown empty_text="Referrer data will appear after a click." %}</article>
+      </div>
+    </section>
+  </div>
+{% endblock %}
+{% block scripts %}<script>document.addEventListener("DOMContentLoaded",()=>{const refresh=async()=>{try{const response=await fetch("{% url 'realtime_analytics' %}",{headers:{"Accept":"application/json"}});if(!response.ok)return;const data=await response.json();document.getElementById("live-clicks-today").textContent=data.clicks_today;document.getElementById("live-clicks-five").textContent=data.clicks_last_5_minutes;document.getElementById("live-conversions").textContent=data.conversions_today;}catch(error){/* Keep the last accurate server-rendered values when refresh is unavailable. */}};refresh();window.setInterval(refresh,30000);});</script>{% endblock %}

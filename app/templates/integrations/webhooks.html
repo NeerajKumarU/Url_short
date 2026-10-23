@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Webhooks — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell">
+  <header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>Webhooks</h1><p>Queue signed event deliveries and inspect retry history.</p></div><a class="button button-secondary" href="{% url 'api_key_list' %}">API keys</a></header>
+  {% if raw_secret %}<div class="glass-card secret-reveal" role="alert"><h2>Copy this signing secret now</h2><code>{{ raw_secret }}</code><p>The secret will not be exposed again. Verify the <code>X-OrbitLink-Signature</code> HMAC-SHA256 header against the raw request body.</p></div>{% endif %}
+  <div class="glass-card form-card"><h2>Add endpoint</h2><form method="post" action="{% url 'webhook_create' %}">{% csrf_token %}{{ form.as_p }}<button class="button button-primary" type="submit">Create webhook</button></form></div>
+  <div class="ops-grid">{% for endpoint in endpoints %}<article class="glass-card ops-card"><div><span class="status-pill">{% if endpoint.is_active %}Active{% else %}Disabled{% endif %}</span><h2>{{ endpoint.name }}</h2><p class="break-anywhere">{{ endpoint.endpoint_url }}</p><small>Secret prefix: {{ endpoint.secret_prefix }} · {{ endpoint.subscribed_events|join:", " }}</small></div><form method="post" action="{% url 'webhook_toggle' endpoint.pk %}">{% csrf_token %}<button class="button button-secondary" type="submit">{% if endpoint.is_active %}Disable{% else %}Enable{% endif %}</button></form><div><h3>Recent deliveries</h3>{% for delivery in endpoint.deliveries.all|slice:":5" %}<p>{{ delivery.event_type }} · {{ delivery.get_status_display }}{% if delivery.status != "SUCCEEDED" %}<form class="inline-form" method="post" action="{% url 'webhook_retry' delivery.pk %}">{% csrf_token %}<button class="text-action" type="submit">Try now</button></form>{% endif %}</p>{% empty %}<p>No deliveries queued.</p>{% endfor %}</div></article>{% empty %}<div class="glass-card empty-state"><h2>No webhooks</h2><p>Create an endpoint to receive workspace events.</p></div>{% endfor %}</div>
+</section>
+{% endblock %}

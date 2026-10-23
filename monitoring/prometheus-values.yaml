@@ -1,0 +1,36 @@
+# Helm values for the kube-prometheus-stack chart (bundles Prometheus + Grafana + Alertmanager).
+#
+# Install with:
+#   helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+#   helm install monitoring prometheus-community/kube-prometheus-stack \
+#     -n monitoring --create-namespace -f monitoring/prometheus-values.yaml
+
+grafana:
+  enabled: true
+  adminPassword: "changeme"   # override via --set on install; never commit a real password
+  service:
+    type: ClusterIP           # use `kubectl port-forward` to reach it, or put it behind the same Ingress
+
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    resources:
+      requests:
+        cpu: 200m
+        memory: 400Mi
+      limits:
+        cpu: 500m
+        memory: 800Mi
+
+alertmanager:
+  enabled: true
+  config:
+    route:
+      receiver: "default"
+      group_by: ["alertname"]
+    receivers:
+      - name: "default"
+        # Add a real receiver here once you have one, e.g.:
+        # slack_configs:
+        #   - api_url: "<your-slack-webhook-url>"
+        #     channel: "#alerts"

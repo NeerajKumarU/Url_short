@@ -1,0 +1,5 @@
+{% extends "admin/base.html" %}{% load static i18n %}
+{% block title %}{{ title }} | OrbitLink Admin{% endblock %}
+{% block extrastyle %}{{ block.super }}<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="{% static 'admin/css/orbit-admin.css' %}">{% endblock %}
+{% block branding %}<div class="orbit-admin-brand"><span>O</span><div><strong>OrbitLink</strong><small>Platform administration</small></div></div>{% endblock %}
+{% block nav-global %}{% endblock %}

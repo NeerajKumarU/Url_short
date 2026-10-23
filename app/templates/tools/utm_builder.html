@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}UTM builder — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/auth.css' %}">{% endblock %}
+{% block content %}<section class="auth-shell auth-shell-single"><div class="glass-card auth-card"><span class="eyebrow">Campaign tool</span><h1>UTM builder</h1><p class="auth-subtitle">Preserves existing query parameters and safely replaces duplicate UTM fields.</p>{% if generated_url %}<div class="result-card"><div><span class="result-kicker">Campaign URL ready</span><a href="{{ generated_url }}" target="_blank" rel="noopener">{{ generated_url }}</a></div><button class="button button-secondary copy-button" data-copy="{{ generated_url }}" type="button">Copy</button></div>{% endif %}<form method="post" class="auth-form">{% csrf_token %}{% for field in form %}<div class="field-group"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% for error in field.errors %}<span class="field-error">{{ error }}</span>{% endfor %}</div>{% endfor %}<button class="button button-primary" type="submit">Build URL</button></form></div></section>{% endblock %}

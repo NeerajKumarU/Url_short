@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Campaign suggestions — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell"><header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>AI campaign suggestions</h1><p>Optional ideas only. Suggestions are never created or activated automatically.</p></div><a class="button button-secondary" href="{% url 'analytics_assistant' %}">Analytics assistant</a></header>
+  {% if not provider.available %}<div class="glass-card integration-note"><h2>AI is unavailable</h2><p>No provider key is configured.</p></div>{% else %}<div class="glass-card form-card"><form method="post">{% csrf_token %}<label for="brief">Campaign brief</label><textarea id="brief" name="brief" maxlength="1000" required>{{ brief }}</textarea><button class="button button-primary" type="submit">Generate optional ideas</button></form></div>{% endif %}
+  {% if answer %}<article class="glass-card integration-note"><h2>Suggestions—not applied</h2>{% if answer.error %}<p>{{ answer.error }}</p>{% else %}<p class="ai-answer">{{ answer.text|linebreaksbr }}</p>{% endif %}</article>{% endif %}
+</section>
+{% endblock %}

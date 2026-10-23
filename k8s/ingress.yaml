@@ -1,0 +1,23 @@
+# Requires an ingress controller in the cluster (e.g. ingress-nginx).
+# Local kind/Minikube: install ingress-nginx, then `minikube tunnel` or
+# port-forward the controller's Service to reach this.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: web-ingress
+  namespace: devops-portfolio
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: url-shortener.local   # map to 127.0.0.1 in /etc/hosts for local testing
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: web
+                port:
+                  number: 80

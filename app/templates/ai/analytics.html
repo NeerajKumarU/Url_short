@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}AI analytics — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell"><header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>AI analytics assistant</h1><p>Answers are generated only from structured analytics already authorized for this workspace.</p></div><a class="button button-secondary" href="{% url 'campaign_suggestions' %}">Campaign ideas</a></header>
+  {% if not provider.available %}<div class="glass-card integration-note"><h2>AI is unavailable</h2><p>No provider key is configured. Everything else continues to work normally.</p></div>{% else %}<div class="glass-card form-card"><form method="post">{% csrf_token %}<label for="question">Ask about the last seven days</label><textarea id="question" name="question" maxlength="500" required>{{ question }}</textarea><button class="button button-primary" type="submit">Ask assistant</button></form></div>{% endif %}
+  {% if answer %}<article class="glass-card integration-note"><h2>Answer</h2>{% if answer.error %}<p>{{ answer.error }}</p>{% else %}<p class="ai-answer">{{ answer.text|linebreaksbr }}</p>{% endif %}</article>{% endif %}
+</section>
+{% endblock %}

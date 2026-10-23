@@ -1,0 +1,20 @@
+# Tells the kube-prometheus-stack Prometheus instance to scrape the app's
+# /metrics endpoint. Requires the web Service (k8s/web.yaml) to exist first.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: web-monitor
+  namespace: devops-portfolio
+  labels:
+    release: monitoring   # must match the Helm release name used to install kube-prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: web
+  namespaceSelector:
+    matchNames:
+      - devops-portfolio
+  endpoints:
+    - port: http
+      path: /metrics
+      interval: 15s

@@ -1,0 +1,41 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#07090f">
+    <title>{% block title %}OrbitLink{% endblock %}</title>
+    <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+    <link rel="stylesheet" href="{% static 'css/layout.css' %}">
+    <link rel="stylesheet" href="{% static 'css/components.css' %}">
+    {% block styles %}{% endblock %}
+  </head>
+  <body class="{% if user.is_authenticated %}app-authenticated{% else %}public-page{% endif %} {% block body_class %}{% endblock %}">
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    {% if user.is_authenticated %}
+      <div class="app-layout">
+        {% include "components/sidebar.html" %}
+        <button class="sidebar-backdrop" type="button" aria-label="Close navigation" tabindex="-1"></button>
+        <div class="app-column">
+          {% include "components/topbar.html" %}
+          {% if messages %}<div class="toast-stack" aria-live="polite">{% for message in messages %}<div class="notice notice-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+          <main id="main-content" class="app-main">
+    {% else %}
+      <div class="public-layout">
+        <a class="public-brand brand" href="{% url 'home' %}" aria-label="OrbitLink home"><span class="brand-mark" aria-hidden="true">O</span><span>OrbitLink</span></a>
+        {% if messages %}<div class="toast-stack" aria-live="polite">{% for message in messages %}<div class="notice notice-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+        <main id="main-content">
+    {% endif %}
+      {% block content %}{% endblock %}
+    </main>
+    {% if user.is_authenticated %}</div></div>{% else %}</div>{% endif %}
+    <script src="{% static 'js/app.js' %}" defer></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

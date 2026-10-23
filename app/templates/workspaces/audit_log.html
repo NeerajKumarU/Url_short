@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Audit log — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell"><header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>Audit log</h1><p>Recent administrative and link-management activity.</p></div></header>
+  <div class="table-wrap glass-card"><table class="ops-table"><thead><tr><th>Time</th><th>Action</th><th>Actor</th><th>Target</th></tr></thead><tbody>
+    {% for log in logs %}<tr><td>{{ log.created_at|date:"M j, Y H:i" }}</td><td><span class="status-pill">{{ log.action }}</span></td><td>{{ log.actor.username|default:"System" }}</td><td>{{ log.target_type }}{% if log.target_id %} #{{ log.target_id }}{% endif %}</td></tr>
+    {% empty %}<tr><td colspan="4">No audit events yet.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

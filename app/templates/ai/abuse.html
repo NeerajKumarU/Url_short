@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}AI abuse review — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell"><header class="ops-heading"><div><span class="eyebrow">Platform administrator</span><h1>AI abuse review</h1><p>Advisory evidence summaries only. The assistant cannot disable accounts or links.</p></div><a class="button button-secondary" href="{% url 'admin_dashboard' %}">Operations</a></header>
+  {% if not provider.available %}<div class="glass-card integration-note"><h2>AI is unavailable</h2><p>Configure a provider key to enable advisory summaries.</p></div>{% else %}<div class="glass-card form-card"><form method="post">{% csrf_token %}<label for="link-id">Reported link</label><select id="link-id" name="link_id" required><option value="">Choose a link</option>{% for link in candidates %}<option value="{{ link.pk }}">/{{ link.shorturl }} · {{ link.workspace.name|default:"No workspace" }}</option>{% endfor %}</select><button class="button button-primary" type="submit">Summarize evidence</button></form></div>{% endif %}
+  {% if answer %}<article class="glass-card integration-note"><h2>Advisory summary for /{{ selected.shorturl }}</h2>{% if answer.error %}<p>{{ answer.error }}</p>{% else %}<p class="ai-answer">{{ answer.text|linebreaksbr }}</p>{% endif %}</article>{% endif %}
+</section>
+{% endblock %}

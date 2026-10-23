@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Link expired — OrbitLink{% endblock %}
+{% block content %}
+  <section class="status-page shell">
+    <div class="status-orb" aria-hidden="true">410</div>
+    <span class="eyebrow">Link unavailable</span>
+    <h1>This link has expired.</h1>
+    <p>The owner set an expiry for <strong>/{{ link.shorturl }}</strong>, so it no longer redirects.</p>
+    <a class="button button-primary" href="{% url 'home' %}">Go to OrbitLink</a>
+  </section>
+{% endblock %}

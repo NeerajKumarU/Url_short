@@ -1,0 +1,38 @@
+# PrometheusRule consumed by kube-prometheus-stack's Prometheus Operator.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: web-alerts
+  namespace: devops-portfolio
+  labels:
+    release: monitoring
+spec:
+  groups:
+    - name: web.rules
+      rules:
+        - alert: PodCrashLooping
+          expr: rate(kube_pod_container_status_restarts_total{namespace="devops-portfolio"}[15m]) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Pod {{ $labels.pod }} is restarting repeatedly"
+            description: "Container {{ $labels.container }} in {{ $labels.pod }} has restarted in the last 15 minutes."
+
+        - alert: AppDown
+          expr: up{job="web-monitor"} == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "The app is not responding to scrapes"
+            description: "Prometheus has not been able to scrape /metrics for 2+ minutes."
+
+        - alert: HighRedirect404Rate
+          expr: increase(app_requests_total[10m]) > 0 and (increase(app_redirects_total[10m]) / increase(app_requests_total[10m])) < 0.3
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Unusually low redirect success rate"
+            description: "Fewer than 30% of recent requests resulted in a successful redirect — may indicate broken short links or a bad deploy."

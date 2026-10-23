@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}My links — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell">
+  <header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>My links</h1><p>Search, filter, and manage every short link in this workspace.</p></div><a class="button button-primary" href="{% url 'create_link_page' %}">+ Create link</a></header>
+  <form class="glass-card filter-bar" method="get">
+    <label class="search-field"><span class="sr-only">Search links</span><input type="search" name="q" value="{{ query }}" placeholder="Search alias, destination, or campaign"></label>
+    <label><span class="sr-only">Status</span><select name="status"><option value="all" {% if status_filter == 'all' %}selected{% endif %}>All statuses</option><option value="active" {% if status_filter == 'active' %}selected{% endif %}>Active</option><option value="scheduled" {% if status_filter == 'scheduled' %}selected{% endif %}>Scheduled</option><option value="expired" {% if status_filter == 'expired' %}selected{% endif %}>Expired</option><option value="disabled" {% if status_filter == 'disabled' %}selected{% endif %}>Disabled</option></select></label>
+    <label><span class="sr-only">Sort</span><select name="sort"><option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option><option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option><option value="clicks" {% if sort == 'clicks' %}selected{% endif %}>Most clicks</option><option value="alias" {% if sort == 'alias' %}selected{% endif %}>Alias A–Z</option></select></label>
+    <button class="button button-secondary" type="submit">Apply</button>
+  </form>
+  <div class="section-title-row list-summary"><p><strong>{{ page_obj.paginator.count }}</strong> link{{ page_obj.paginator.count|pluralize }} found</p><a href="{% url 'export_links' %}">Export CSV</a></div>
+  <div class="table-wrap glass-card">
+    <table class="link-table"><thead><tr><th>Short link</th><th>Destination</th><th>Campaign</th><th>Status</th><th>Clicks</th><th>Created</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>
+      {% for link in page_obj %}<tr>
+        <td><a class="short-link" href="{{ link.public_url }}" target="_blank" rel="noopener">/{{ link.shorturl }}</a><button class="icon-button copy-button" type="button" data-copy="{{ link.public_url }}">Copy</button></td>
+        <td><span class="destination" title="{{ link.longurl }}">{{ link.longurl }}</span></td><td>{{ link.campaign.name|default:"—" }}</td><td><span class="badge {% if link.status_label == 'Active' %}badge-active{% elif link.status_label == 'Expired' or link.status_label == 'Blocked' or link.status_label == 'Disabled' %}badge-expired{% endif %}">{{ link.status_label }}</span></td><td><strong>{{ link.count }}</strong></td><td>{{ link.created_at|date:"M j, Y" }}</td>
+        <td><details class="action-menu"><summary aria-label="Actions for {{ link.shorturl }}">•••</summary><div><a href="{% url 'edit_short_url' link.pk %}">Edit</a><a href="{% url 'qr_code' link.pk %}" target="_blank">QR code</a><a href="{% url 'routing_rule_list' link.pk %}">Routing</a><a href="{% url 'experiment_list' link.pk %}">Experiments</a><a href="{% url 'link_version_list' link.pk %}">History</a><form method="post" action="{% url 'delete_short_url' link.pk %}" data-confirm="Delete /{{ link.shorturl }}? This cannot be undone.">{% csrf_token %}<button type="submit">Delete</button></form></div></details></td>
+      </tr>{% empty %}<tr><td colspan="7"><div class="empty-state"><span class="empty-icon">↗</span><h2>No links match these filters</h2><p>Try a broader search or create a new short link.</p></div></td></tr>{% endfor %}
+    </tbody></table>
+  </div>
+  {% if page_obj.paginator.num_pages > 1 %}<nav class="pagination" aria-label="Link pages">{% if page_obj.has_previous %}<a href="?q={{ query|urlencode }}&status={{ status_filter }}&sort={{ sort }}&page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}<span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a href="?q={{ query|urlencode }}&status={{ status_filter }}&sort={{ sort }}&page={{ page_obj.next_page_number }}">Next</a>{% endif %}</nav>{% endif %}
+</section>
+{% endblock %}

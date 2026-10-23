@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}API keys — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell">
+  <header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>API keys</h1><p>Create workspace-scoped credentials. Raw keys are displayed exactly once.</p></div><a class="button button-secondary" href="{% url 'webhook_list' %}">Webhooks</a></header>
+  {% if raw_key %}<div class="glass-card secret-reveal" role="alert"><h2>Copy this key now</h2><code>{{ raw_key }}</code><p>OrbitLink stores only a secure password hash and cannot show this value again.</p></div>{% endif %}
+  <div class="glass-card form-card"><h2>Create API key</h2><form method="post" action="{% url 'api_key_create' %}">{% csrf_token %}{{ form.as_p }}<button class="button button-primary" type="submit">Create key</button></form></div>
+  <div class="glass-card table-wrap"><table class="ops-table"><thead><tr><th>Name</th><th>Prefix</th><th>Scopes</th><th>Last used</th><th>Status</th><th></th></tr></thead><tbody>{% for credential in credentials %}<tr><td>{{ credential.name }}</td><td><code>{{ credential.prefix }}</code></td><td>{{ credential.scopes|join:", " }}</td><td>{{ credential.last_used_at|default:"Never" }}</td><td>{% if credential.is_active %}Active{% else %}Revoked or expired{% endif %}</td><td>{% if credential.revoked_at %}—{% else %}<form method="post" action="{% url 'api_key_revoke' credential.pk %}">{% csrf_token %}<button class="text-action danger" type="submit">Revoke</button></form>{% endif %}</td></tr>{% empty %}<tr><td colspan="6">No API keys yet.</td></tr>{% endfor %}</tbody></table></div>
+</section>
+{% endblock %}

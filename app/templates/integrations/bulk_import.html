@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Bulk import — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block content %}
+<section class="ops-shell shell"><header class="ops-heading"><div><span class="eyebrow">{{ workspace.name }}</span><h1>Bulk CSV import</h1><p>Every row is validated first. If one row fails, no links are created.</p></div><a class="button button-secondary" href="{% url 'export_links' %}">Export links CSV</a></header>
+  <div class="glass-card form-card"><p>Columns: <code>destination</code> (required), <code>alias</code>, and <code>campaign</code>.</p><form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button class="button button-primary" type="submit">Validate and import</button></form></div>
+  {% if row_errors %}<div class="glass-card"><h2>Nothing was imported</h2><table class="ops-table"><thead><tr><th>Row</th><th>Problems</th></tr></thead><tbody>{% for item in row_errors %}<tr><td>{{ item.row }}</td><td>{{ item.errors|join:" " }}</td></tr>{% endfor %}</tbody></table></div>{% endif %}
+</section>
+{% endblock %}
