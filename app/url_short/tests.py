@@ -37,6 +37,15 @@ class RoutingAndOperationsTests(TestCase):
         self.assertEqual(self.client.get("/login/").status_code, 200)
         self.assertEqual(self.client.get("/register/").status_code, 200)
 
+    def test_public_pages_include_persistent_theme_controls(self):
+        response = self.client.get("/login/")
+        self.assertContains(response, 'data-theme-select')
+        self.assertContains(response, '<option value="light">Light</option>', html=True)
+        self.assertContains(response, '<option value="dark">Dark</option>', html=True)
+        self.assertContains(response, '<option value="system">System</option>', html=True)
+        self.assertContains(response, 'orbitlink-theme')
+        self.assertContains(response, 'prefers-color-scheme: dark')
+
 
 class AuthenticationTests(TestCase):
     def test_register_accepts_username_email_and_password(self):
@@ -112,6 +121,7 @@ class UrlShortenerTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Application navigation")
         self.assertContains(response, "Create link")
+        self.assertContains(response, "data-theme-select")
 
     def test_my_links_supports_search_and_pagination(self):
         urlModel.objects.bulk_create(
