@@ -2,21 +2,34 @@
   const themeStorageKey = "orbitlink-theme";
   const root = document.documentElement;
   const systemTheme = window.matchMedia?.("(prefers-color-scheme: dark)");
-  const themeSelects = document.querySelectorAll("[data-theme-select]");
+  const themeToggles = document.querySelectorAll("[data-theme-toggle]");
+  const themeOrder = ["light", "dark", "system"];
+  const themeDetails = {
+    light: { label: "Light", icon: "☀" },
+    dark: { label: "Dark", icon: "☾" },
+    system: { label: "System", icon: "◐" },
+  };
   const applyTheme = (preference) => {
-    const selected = ["light", "dark", "system"].includes(preference) ? preference : "system";
+    const selected = themeOrder.includes(preference) ? preference : "system";
     const effective = selected === "system" ? (systemTheme?.matches ? "dark" : "light") : selected;
     root.dataset.theme = effective;
     root.dataset.themePreference = selected;
     root.style.colorScheme = effective;
-    themeSelects.forEach((control) => { control.value = selected; });
+    const nextTheme = themeOrder[(themeOrder.indexOf(selected) + 1) % themeOrder.length];
+    themeToggles.forEach((control) => {
+      control.dataset.themePreference = selected;
+      control.querySelector("[data-theme-icon]").textContent = themeDetails[selected].icon;
+      control.querySelector("[data-theme-label]").textContent = themeDetails[selected].label;
+      control.setAttribute("aria-label", `Theme: ${themeDetails[selected].label}. Activate to switch to ${themeDetails[nextTheme].label}`);
+    });
     const themeColor = document.querySelector("#theme-color-meta");
     if (themeColor) themeColor.content = effective === "dark" ? "#07090f" : "#f4f6fb";
   };
   applyTheme(root.dataset.themePreference || "system");
-  themeSelects.forEach((control) => {
-    control.addEventListener("change", () => {
-      const preference = control.value;
+  themeToggles.forEach((control) => {
+    control.addEventListener("click", () => {
+      const current = root.dataset.themePreference || "system";
+      const preference = themeOrder[(themeOrder.indexOf(current) + 1) % themeOrder.length];
       try { localStorage.setItem(themeStorageKey, preference); } catch (_) { /* Keep the in-page choice. */ }
       applyTheme(preference);
     });

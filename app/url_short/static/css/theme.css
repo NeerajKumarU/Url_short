@@ -9,12 +9,12 @@ body {
 }
 body::before { background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg,var(--grid-line) 1px,transparent 1px); }
 
-.theme-switcher { min-height: 34px; padding: 0 8px; display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--border); border-radius: 9px; color: var(--muted); background: var(--surface); }
-.theme-switcher:hover { border-color: var(--border-strong); background: var(--surface-2); }
-.theme-switcher:focus-within { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
-.theme-switcher-icon { color: var(--accent-text); font-size: .78rem; }
-.theme-select { width: auto; min-height: 32px; padding: 0 18px 0 2px; border: 0; outline: 0; color: var(--text); background: transparent; font-size: .68rem; font-weight: 700; cursor: pointer; }
-.theme-select:focus { background: transparent; box-shadow: none; }
+.theme-toggle { min-height: 34px; padding: 0 10px; display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--border); border-radius: 999px; color: var(--text); background: var(--surface); font: 700 .68rem "DM Sans",sans-serif; cursor: pointer; transition: border-color .18s ease,background .18s ease,transform .18s ease; }
+.theme-toggle:hover { border-color: var(--border-strong); background: var(--surface-2); transform: translateY(-1px); }
+.theme-toggle:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.theme-toggle-icon { width: 16px; display: inline-grid; place-items: center; color: var(--accent-text); font-size: .88rem; }
+.theme-toggle[data-theme-preference="light"] .theme-toggle-icon { color: #b36b00; }
+.theme-toggle[data-theme-preference="dark"] .theme-toggle-icon { color: var(--accent-text); }
 .public-theme-control { position: absolute; top: 23px; right: 28px; z-index: 5; }
 
 .app-sidebar { background: linear-gradient(180deg,var(--sidebar-start),var(--sidebar-end)); }
@@ -70,9 +70,8 @@ body::before { background-image: linear-gradient(var(--grid-line) 1px, transpare
 .qr-preview { border-color: var(--border-strong); }
 
 @media (max-width: 640px) {
-  .theme-switcher { padding-inline: 6px; }
-  .theme-switcher-icon { display: none; }
-  .theme-select { max-width: 72px; font-size: .64rem; }
+  .theme-toggle { width: 34px; padding: 0; justify-content: center; }
+  .theme-toggle-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
   .public-theme-control { top: 17px; right: 18px; }
 }
 
