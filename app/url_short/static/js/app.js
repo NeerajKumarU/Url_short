@@ -1,4 +1,30 @@
 (() => {
+  const themeStorageKey = "orbitlink-theme";
+  const root = document.documentElement;
+  const systemTheme = window.matchMedia?.("(prefers-color-scheme: dark)");
+  const themeSelects = document.querySelectorAll("[data-theme-select]");
+  const applyTheme = (preference) => {
+    const selected = ["light", "dark", "system"].includes(preference) ? preference : "system";
+    const effective = selected === "system" ? (systemTheme?.matches ? "dark" : "light") : selected;
+    root.dataset.theme = effective;
+    root.dataset.themePreference = selected;
+    root.style.colorScheme = effective;
+    themeSelects.forEach((control) => { control.value = selected; });
+    const themeColor = document.querySelector("#theme-color-meta");
+    if (themeColor) themeColor.content = effective === "dark" ? "#07090f" : "#f4f6fb";
+  };
+  applyTheme(root.dataset.themePreference || "system");
+  themeSelects.forEach((control) => {
+    control.addEventListener("change", () => {
+      const preference = control.value;
+      try { localStorage.setItem(themeStorageKey, preference); } catch (_) { /* Keep the in-page choice. */ }
+      applyTheme(preference);
+    });
+  });
+  systemTheme?.addEventListener?.("change", () => {
+    if (root.dataset.themePreference === "system") applyTheme("system");
+  });
+
   const toggle = document.querySelector(".nav-toggle");
   const menu = document.querySelector(".nav-menu");
   if (toggle && menu) {
