@@ -4,7 +4,24 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#07090f">
+    <script>
+      (() => {
+        const key = "orbitlink-theme";
+        let preference = "system";
+        try {
+          const saved = localStorage.getItem(key);
+          if (["light", "dark", "system"].includes(saved)) preference = saved;
+        } catch (_) {
+          // Storage may be unavailable in privacy-restricted browsing contexts.
+        }
+        const systemDark = window.matchMedia?.("(prefers-color-scheme: dark)").matches;
+        const effectiveTheme = preference === "system" ? (systemDark ? "dark" : "light") : preference;
+        document.documentElement.dataset.theme = effectiveTheme;
+        document.documentElement.dataset.themePreference = preference;
+        document.documentElement.style.colorScheme = effectiveTheme;
+      })();
+    </script>
+    <meta name="theme-color" content="#07090f" id="theme-color-meta">
     <title>{% block title %}OrbitLink{% endblock %}</title>
     <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,6 +32,7 @@
     <link rel="stylesheet" href="{% static 'css/layout.css' %}">
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
     {% block styles %}{% endblock %}
+    <link rel="stylesheet" href="{% static 'css/theme.css' %}">
   </head>
   <body class="{% if user.is_authenticated %}app-authenticated{% else %}public-page{% endif %} {% block body_class %}{% endblock %}">
     <a class="skip-link" href="#main-content">Skip to content</a>
@@ -29,6 +47,7 @@
     {% else %}
       <div class="public-layout">
         <a class="public-brand brand" href="{% url 'home' %}" aria-label="OrbitLink home"><span class="brand-mark" aria-hidden="true">O</span><span>OrbitLink</span></a>
+        <div class="public-theme-control">{% include "components/theme_switcher.html" %}</div>
         {% if messages %}<div class="toast-stack" aria-live="polite">{% for message in messages %}<div class="notice notice-{{ message.tags|default:'info' }}">{{ message }}</div>{% endfor %}</div>{% endif %}
         <main id="main-content">
     {% endif %}
