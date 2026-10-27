@@ -39,11 +39,10 @@ class RoutingAndOperationsTests(TestCase):
 
     def test_public_pages_include_persistent_theme_controls(self):
         response = self.client.get("/login/")
-        self.assertContains(response, 'data-theme-select')
-        self.assertContains(response, '<option value="light">Light</option>', html=True)
-        self.assertContains(response, '<option value="dark">Dark</option>', html=True)
-        self.assertContains(response, '<option value="system">System</option>', html=True)
-        self.assertContains(response, 'orbitlink-theme')
+        self.assertContains(response, "data-theme-toggle")
+        self.assertContains(response, 'const themeKey = "theme"')
+        self.assertContains(response, 'const accentKey = "accent-color"')
+        self.assertContains(response, 'dataset.accent = accent')
         self.assertContains(response, 'prefers-color-scheme: dark')
 
 
@@ -121,7 +120,16 @@ class UrlShortenerTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Application navigation")
         self.assertContains(response, "Create link")
-        self.assertContains(response, "data-theme-select")
+        self.assertContains(response, "data-theme-toggle")
+
+    def test_settings_page_includes_theme_and_accent_controls(self):
+        response = self.client.get("/settings/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Appearance")
+        for theme in ("light", "dark", "system"):
+            self.assertContains(response, f'value="{theme}" data-theme-option')
+        for accent in ("purple", "blue", "emerald", "orange"):
+            self.assertContains(response, f'value="{accent}" data-accent-option')
 
     def test_my_links_supports_search_and_pagination(self):
         urlModel.objects.bulk_create(

@@ -6,11 +6,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script>
       (() => {
-        const key = "orbitlink-theme";
+        const themeKey = "theme";
+        const legacyThemeKey = "orbitlink-theme";
+        const accentKey = "accent-color";
+        const validThemes = ["light", "dark", "system"];
+        const validAccents = ["purple", "blue", "emerald", "orange"];
         let preference = "system";
+        let accent = "purple";
         try {
-          const saved = localStorage.getItem(key);
-          if (["light", "dark", "system"].includes(saved)) preference = saved;
+          const savedTheme = localStorage.getItem(themeKey) || localStorage.getItem(legacyThemeKey);
+          const savedAccent = localStorage.getItem(accentKey);
+          if (validThemes.includes(savedTheme)) preference = savedTheme;
+          if (validAccents.includes(savedAccent)) accent = savedAccent;
         } catch (_) {
           // Storage may be unavailable in privacy-restricted browsing contexts.
         }
@@ -18,6 +25,7 @@
         const effectiveTheme = preference === "system" ? (systemDark ? "dark" : "light") : preference;
         document.documentElement.dataset.theme = effectiveTheme;
         document.documentElement.dataset.themePreference = preference;
+        document.documentElement.dataset.accent = accent;
         document.documentElement.style.colorScheme = effectiveTheme;
       })();
     </script>

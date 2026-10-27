@@ -1,1 +1,113 @@
-{% extends "base.html" %}{% load static %}{% block title %}Settings — OrbitLink{% endblock %}{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}{% block content %}<section class="ops-shell"><header class="ops-heading"><div><span class="eyebrow">Account</span><h1>Settings</h1><p>Your identity and current workspace access.</p></div></header><div class="settings-grid"><article class="glass-card form-card"><h2>Profile</h2><dl class="settings-list"><div><dt>Username</dt><dd>{{ user.username }}</dd></div><div><dt>Email</dt><dd>{{ user.email|default:"Not provided" }}</dd></div><div><dt>Platform access</dt><dd>{% if user.is_staff or user.is_superuser %}Platform administrator{% else %}Standard user{% endif %}</dd></div></dl></article><article class="glass-card form-card"><h2>Current workspace</h2><dl class="settings-list"><div><dt>Name</dt><dd>{{ workspace.name }}</dd></div><div><dt>Role</dt><dd>{{ membership.get_role_display|default:"Owner" }}</dd></div><div><dt>Analytics retention</dt><dd>{{ workspace.analytics_retention_days }} days</dd></div></dl><div class="button-row"><a class="button button-secondary" href="{% url 'workspace_list' %}">Manage workspaces</a>{% if membership.role == 'OWNER' or membership.role == 'ADMIN' %}<a class="button button-secondary" href="{% url 'workspace_governance_settings' %}">Governance</a>{% endif %}</div></article></div></section>{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Settings — OrbitLink{% endblock %}
+
+{% block styles %}
+  <link rel="stylesheet" href="{% static 'css/operations.css' %}">
+{% endblock %}
+
+{% block content %}
+  <section class="ops-shell">
+    <header class="ops-heading">
+      <div>
+        <span class="eyebrow">Account</span>
+        <h1>Settings</h1>
+        <p>Manage your workspace details and personalize how OrbitLink looks.</p>
+      </div>
+    </header>
+
+    <div class="settings-grid">
+      <article class="glass-card form-card appearance-card" data-appearance-settings>
+        <div class="appearance-heading">
+          <div>
+            <span class="appearance-kicker">Personal preference</span>
+            <h2>Appearance</h2>
+            <p>Choose a theme and accent color. Changes apply instantly on this device.</p>
+          </div>
+          <span class="appearance-saved" id="appearance-status" aria-live="polite">Saved automatically</span>
+        </div>
+
+        <div class="appearance-settings-grid">
+          <fieldset class="appearance-group">
+            <legend>Theme</legend>
+            <p>Choose a fixed theme or follow your system setting.</p>
+            <div class="theme-choice-grid">
+              <label class="appearance-option">
+                <input class="appearance-radio sr-only" type="radio" name="appearance-theme" value="light" data-theme-option>
+                <span class="appearance-option-body">
+                  <span class="appearance-option-icon" aria-hidden="true">☀</span>
+                  <span><strong>Light</strong><small>Bright and clear</small></span>
+                  <span class="appearance-check" aria-hidden="true">✓</span>
+                </span>
+              </label>
+              <label class="appearance-option">
+                <input class="appearance-radio sr-only" type="radio" name="appearance-theme" value="dark" data-theme-option>
+                <span class="appearance-option-body">
+                  <span class="appearance-option-icon" aria-hidden="true">☾</span>
+                  <span><strong>Dark</strong><small>Easy on the eyes</small></span>
+                  <span class="appearance-check" aria-hidden="true">✓</span>
+                </span>
+              </label>
+              <label class="appearance-option">
+                <input class="appearance-radio sr-only" type="radio" name="appearance-theme" value="system" data-theme-option>
+                <span class="appearance-option-body">
+                  <span class="appearance-option-icon" aria-hidden="true">▣</span>
+                  <span><strong>System</strong><small>Match this device</small></span>
+                  <span class="appearance-check" aria-hidden="true">✓</span>
+                </span>
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset class="appearance-group">
+            <legend>Accent color</legend>
+            <p>Used for primary actions, selected navigation, links, and focus states.</p>
+            <div class="accent-choice-grid">
+              <label class="accent-option">
+                <input class="appearance-radio sr-only" type="radio" name="appearance-accent" value="purple" data-accent-option>
+                <span class="accent-option-body"><span class="accent-swatch accent-swatch-purple" aria-hidden="true"></span><strong>Purple</strong><span class="appearance-check" aria-hidden="true">✓</span></span>
+              </label>
+              <label class="accent-option">
+                <input class="appearance-radio sr-only" type="radio" name="appearance-accent" value="blue" data-accent-option>
+                <span class="accent-option-body"><span class="accent-swatch accent-swatch-blue" aria-hidden="true"></span><strong>Blue</strong><span class="appearance-check" aria-hidden="true">✓</span></span>
+              </label>
+              <label class="accent-option">
+                <input class="appearance-radio sr-only" type="radio" name="appearance-accent" value="emerald" data-accent-option>
+                <span class="accent-option-body"><span class="accent-swatch accent-swatch-emerald" aria-hidden="true"></span><strong>Emerald</strong><span class="appearance-check" aria-hidden="true">✓</span></span>
+              </label>
+              <label class="accent-option">
+                <input class="appearance-radio sr-only" type="radio" name="appearance-accent" value="orange" data-accent-option>
+                <span class="accent-option-body"><span class="accent-swatch accent-swatch-orange" aria-hidden="true"></span><strong>Orange</strong><span class="appearance-check" aria-hidden="true">✓</span></span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+      </article>
+
+      <article class="glass-card form-card">
+        <h2>Profile</h2>
+        <dl class="settings-list">
+          <div><dt>Username</dt><dd>{{ user.username }}</dd></div>
+          <div><dt>Email</dt><dd>{{ user.email|default:"Not provided" }}</dd></div>
+          <div><dt>Platform access</dt><dd>{% if user.is_staff or user.is_superuser %}Platform administrator{% else %}Standard user{% endif %}</dd></div>
+        </dl>
+      </article>
+
+      <article class="glass-card form-card">
+        <h2>Current workspace</h2>
+        <dl class="settings-list">
+          <div><dt>Name</dt><dd>{{ workspace.name }}</dd></div>
+          <div><dt>Role</dt><dd>{{ membership.get_role_display|default:"Owner" }}</dd></div>
+          <div><dt>Analytics retention</dt><dd>{{ workspace.analytics_retention_days }} days</dd></div>
+        </dl>
+        <div class="button-row">
+          <a class="button button-secondary" href="{% url 'workspace_list' %}">Manage workspaces</a>
+          {% if membership.role == 'OWNER' or membership.role == 'ADMIN' %}
+            <a class="button button-secondary" href="{% url 'workspace_governance_settings' %}">Governance</a>
+          {% endif %}
+        </div>
+      </article>
+    </div>
+  </section>
+{% endblock %}
