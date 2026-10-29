@@ -74,6 +74,9 @@ jobs:
       - name: Apply database migrations
         run: python manage.py migrate --noinput
 
+      - name: Collect static files
+        run: python manage.py collectstatic --noinput
+
       - name: Run Django tests
         run: python manage.py test
 
