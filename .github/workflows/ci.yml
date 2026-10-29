@@ -4,8 +4,8 @@ name: Django CI
 on:
   push:
     branches:
-      - main
-      - "feature/**"
+      - master
+      - develop
   pull_request:
     branches:
       - main
