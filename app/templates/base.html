@@ -41,7 +41,7 @@
     <link rel="stylesheet" href="{% static 'css/components.css' %}">
     {% block styles %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
-    <link rel="stylesheet" href="{% static 'css/premium.css' %}">
+    <link rel="stylesheet" href="{% static 'css/premium.css' %}?v=20261102-1">
   </head>
   <body class="{% if user.is_authenticated %}app-authenticated{% else %}public-page{% endif %} {% block body_class %}{% endblock %}">
     {% include "components/icons.html" %}
@@ -71,7 +71,7 @@
         <div class="button-row confirm-dialog-actions"><button class="button button-secondary" value="cancel">Cancel</button><button class="button button-danger" value="confirm">Confirm</button></div>
       </form>
     </dialog>
-    <script src="{% static 'js/app.js' %}" defer></script>
+    <script src="{% static 'js/app.js' %}?v=20261102-1" defer></script>
     {% block scripts %}{% endblock %}
   </body>
 </html>
