@@ -1,3 +1,41 @@
 {% with current=request.resolver_match.url_name %}
-<header class="app-topbar"><div class="topbar-title-group"><button class="sidebar-toggle" type="button" aria-expanded="false" aria-controls="app-sidebar"><span class="sr-only">Open navigation</span><i></i><i></i><i></i></button><div><span class="topbar-kicker">{% if user.is_staff or user.is_superuser %}OrbitLink Platform{% else %}OrbitLink Workspace{% endif %}</span><strong>{% if current == 'dashboard' %}Dashboard{% elif current == 'my_links' %}My links{% elif current == 'create_link_page' or current == 'create_short_url' %}Create link{% elif current == 'qr_library' %}QR codes{% elif current == 'campaign_list' %}Campaigns{% elif current == 'custom_domain_list' %}Custom domains{% elif current == 'workspace_list' %}Workspaces{% elif current == 'anomaly_list' %}Anomalies{% elif current == 'admin_dashboard' %}Platform operations{% elif current == 'system_health' %}System health{% elif current == 'platform_report_list' %}Abuse reports{% elif current == 'account_settings' %}Settings{% else %}OrbitLink{% endif %}</strong></div></div><div class="topbar-actions">{% include "components/theme_switcher.html" %}<span class="environment-pill"><i></i> Live</span><a class="topbar-icon" href="{% url 'anomaly_list' %}" aria-label="View alerts">⌁</a><a class="topbar-profile" href="{% url 'account_settings' %}"><span class="profile-avatar">{{ user.username|first|upper }}</span><span><b>{{ user.username }}</b><small>{% if user.is_staff or user.is_superuser %}Administrator{% else %}Member{% endif %}</small></span></a></div></header>
+<header class="app-topbar">
+  <div class="topbar-title-group">
+    <button class="sidebar-toggle" type="button" aria-expanded="true" aria-controls="app-sidebar" aria-label="Toggle navigation"><svg><use href="#icon-panel"></use></svg></button>
+    <div class="topbar-page-copy">
+      <span class="topbar-kicker">{{ shell_workspace.name|default:"OrbitLink Platform" }}</span>
+      <strong>{% if current == 'dashboard' %}Dashboard{% elif current == 'my_links' %}My links{% elif current == 'create_link_page' or current == 'create_short_url' %}Create link{% elif current == 'qr_library' %}QR codes{% elif current == 'campaign_list' or current == 'campaign_create' or current == 'campaign_edit' %}Campaigns{% elif current == 'custom_domain_list' or current == 'custom_domain_create' %}Custom domains{% elif current == 'workspace_list' %}Workspaces{% elif current == 'workspace_audit_log' %}Audit log{% elif current == 'approval_list' %}Approvals{% elif current == 'anomaly_list' %}Analytics anomalies{% elif current == 'api_key_list' %}API credentials{% elif current == 'webhook_list' %}Webhooks{% elif current == 'admin_dashboard' %}Platform operations{% elif current == 'system_health' %}System health{% elif current == 'platform_report_list' %}Abuse reports{% elif current == 'account_settings' %}Settings{% else %}OrbitLink{% endif %}</strong>
+    </div>
+  </div>
+
+  <form class="global-search" action="{% url 'my_links' %}" method="get" role="search">
+    <svg aria-hidden="true"><use href="#icon-search"></use></svg>
+    <label class="sr-only" for="global-search-input">Search links</label>
+    <input id="global-search-input" type="search" name="q" value="{% if current == 'my_links' %}{{ query }}{% endif %}" placeholder="Search links, destinations, campaigns…" autocomplete="off">
+    <kbd>/</kbd>
+  </form>
+
+  <div class="topbar-actions">
+    {% include "components/theme_switcher.html" %}
+    <details class="topbar-menu notification-menu">
+      <summary class="topbar-icon" aria-label="Notifications{% if shell_notification_count %}, {{ shell_notification_count }} unread{% endif %}"><svg><use href="#icon-bell"></use></svg>{% if shell_notification_count %}<span class="notification-dot">{{ shell_notification_count }}</span>{% endif %}</summary>
+      <div class="topbar-popover">
+        <div class="popover-heading"><div><span class="eyebrow">Workspace signals</span><h2>Notifications</h2></div>{% if shell_notification_count %}<span class="count-chip">{{ shell_notification_count }} open</span>{% endif %}</div>
+        <a class="notification-item" href="{% url 'anomaly_list' %}"><span class="notification-icon"><svg><use href="#icon-alert"></use></svg></span><span><b>Analytics anomalies</b><small>{% if shell_anomaly_count %}{{ shell_anomaly_count }} unresolved signal{{ shell_anomaly_count|pluralize }}{% else %}No unresolved signals{% endif %}</small></span></a>
+        {% if shell_can_admin %}<a class="notification-item" href="{% url 'approval_list' %}"><span class="notification-icon"><svg><use href="#icon-approval"></use></svg></span><span><b>Approval queue</b><small>{% if shell_approval_count %}{{ shell_approval_count }} request{{ shell_approval_count|pluralize }} waiting{% else %}Nothing waiting for review{% endif %}</small></span></a>{% endif %}
+      </div>
+    </details>
+
+    <details class="topbar-menu profile-menu">
+      <summary class="topbar-profile" aria-label="Open profile menu"><span class="profile-avatar">{{ user.username|first|upper }}</span><span class="profile-copy"><b>{{ user.username }}</b><small>{% if shell_is_platform_admin %}Platform administrator{% else %}{{ shell_membership.get_role_display|default:"Member" }}{% endif %}</small></span><svg class="profile-chevron"><use href="#icon-chevron"></use></svg></summary>
+      <div class="topbar-popover profile-popover">
+        <div class="profile-popover-header"><span class="profile-avatar profile-avatar-large">{{ user.username|first|upper }}</span><span><b>{{ user.username }}</b><small>{{ user.email|default:"No email provided" }}</small></span></div>
+        <a href="{% url 'account_settings' %}"><svg><use href="#icon-settings"></use></svg>Settings</a>
+        <a href="{% url 'workspace_list' %}"><svg><use href="#icon-workspace"></use></svg>Switch workspace</a>
+        {% if shell_is_platform_admin %}<a href="{% url 'admin:index' %}"><svg><use href="#icon-admin"></use></svg>Django admin</a>{% endif %}
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button type="submit"><svg><use href="#icon-logout"></use></svg>Log out</button></form>
+      </div>
+    </details>
+  </div>
+</header>
 {% endwith %}
