@@ -113,7 +113,15 @@ class UrlShortenerTests(TestCase):
 
     def test_anonymous_home_enters_login_experience(self):
         self.client.logout()
-        self.assertRedirects(self.client.get("/"), "/login/")
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "See every click")
+        self.assertContains(response, 'href="/login/"')
+
+    def test_product_overview_is_available_to_signed_in_users(self):
+        response = self.client.get("/product/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "In every dimension")
 
     def test_create_link_page_uses_application_shell(self):
         response = self.client.get("/links/new/")

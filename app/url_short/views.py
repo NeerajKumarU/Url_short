@@ -40,7 +40,12 @@ def home(request):
     _metrics["requests_total"] += 1
     if request.user.is_authenticated:
         return redirect("dashboard")
-    return redirect("login")
+    return render(request, "index.html")
+
+
+def product_overview(request):
+    """Public product overview, also available to signed-in users."""
+    return render(request, "index.html")
 
 
 @login_required
