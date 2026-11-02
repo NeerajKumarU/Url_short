@@ -359,6 +359,23 @@ def dashboard(request):
         events = all_events
     conversions = ConversionEvent.objects.filter(link__in=links)
     total_clicks = links.aggregate(total=Sum("count"))["total"] or 0
+    total_conversions = conversions.count()
+    human_clicks = all_events.filter(
+        bot_classification=ClickEvent.BotClassification.HUMAN
+    ).count()
+    bot_clicks = all_events.filter(
+        bot_classification__in=(
+            ClickEvent.BotClassification.KNOWN_BOT,
+            ClickEvent.BotClassification.LIKELY_BOT,
+        )
+    ).count()
+    unique_visitors = (
+        all_events.exclude(ip_address__isnull=True)
+        .exclude(ip_address="")
+        .values("ip_address")
+        .distinct()
+        .count()
+    )
 
     daily_counts = {
         row["day"]: row["value"]
@@ -392,29 +409,27 @@ def dashboard(request):
             workspace=workspace, is_active=True
         ).values_list("role", flat=True).first(),
         "workspace_campaigns": workspace.campaigns.count(),
+        "active_campaigns": workspace.campaigns.filter(status="ACTIVE").count(),
         "links": recent_links,
         "total_links": links.count(),
         "active_links": links.filter(Q(expires_at__isnull=True) | Q(expires_at__gt=now)).count(),
         "expired_links": links.filter(expires_at__lte=now).count(),
         "total_clicks": total_clicks,
         "filtered_clicks": events.count(),
-        "human_clicks": all_events.filter(
-            bot_classification=ClickEvent.BotClassification.HUMAN
-        ).count(),
-        "bot_clicks": all_events.filter(
-            bot_classification__in=(
-                ClickEvent.BotClassification.KNOWN_BOT,
-                ClickEvent.BotClassification.LIKELY_BOT,
-            )
-        ).count(),
+        "human_clicks": human_clicks,
+        "bot_clicks": bot_clicks,
+        "unique_visitors": unique_visitors,
         "traffic_filter": traffic_filter,
         "clicks_today": events.filter(clicked_at__date=today).count(),
         "clicks_week": events.filter(clicked_at__date__gte=week_start).count(),
-        "total_conversions": conversions.count(),
+        "total_conversions": total_conversions,
+        "conversion_rate": round((total_conversions / total_clicks) * 100, 1) if total_clicks else 0,
         "click_timeline": click_timeline,
         "top_links": links.order_by("-count", "shorturl")[:5],
+        "recent_clicks": all_events.select_related("short_url").order_by("-clicked_at")[:8],
         "browser_breakdown": _breakdown(events, "browser"),
         "device_breakdown": _breakdown(events, "device_type"),
+        "operating_system_breakdown": _breakdown(events, "operating_system"),
         "referrer_breakdown": _breakdown(events, "referrer_source"),
     }
     return render(request, "dashboard.html", context)
