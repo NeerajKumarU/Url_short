@@ -42,7 +42,7 @@
     {% block styles %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
     <link rel="stylesheet" href="{% static 'css/premium.css' %}?v=20261103-1">
-    <link rel="stylesheet" href="{% static 'css/cyber-scene.css' %}?v=20261103-1">
+    <link rel="stylesheet" href="{% static 'css/cyber-scene.css' %}?v=20261103-2">
     {% block page_styles %}{% endblock %}
   </head>
   <body class="{% if user.is_authenticated %}app-authenticated{% else %}public-page{% endif %} {% block body_class %}{% endblock %}" data-route="{{ request.resolver_match.url_name|default:'unknown' }}">
