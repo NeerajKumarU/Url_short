@@ -8,7 +8,7 @@ on:
       - develop
   pull_request:
     branches:
-      - main
+      - master 
 
 # The workflow only needs permission to read the repository contents.
 permissions:
