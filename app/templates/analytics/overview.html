@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Traffic Intelligence — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block body_class %}intelligence-page{% endblock %}
+{% block content %}
+<section class="ops-shell shell cyber-page-shell">
+  <header class="ops-heading premium-page-heading cyber-page-heading"><div><span class="eyebrow">{{ workspace.name }} · live telemetry</span><h1>Traffic <span>Intelligence</span></h1><p>Verified workspace traffic, conversion performance, technology signals, and acquisition sources.</p></div><a class="button button-primary" href="{% url 'create_link_page' %}"><svg><use href="#icon-plus"></use></svg>Create link</a></header>
+
+  <div class="cyber-stat-grid">
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-link"></use></svg></span><small>Total links</small><strong>{{ total_links }}</strong><em>Workspace inventory</em></article>
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-chart"></use></svg></span><small>Total clicks</small><strong>{{ total_clicks }}</strong><em>Recorded events</em></article>
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-users"></use></svg></span><small>Unique visitors</small><strong>{{ unique_visitors }}</strong><em>Privacy-safe IP count</em></article>
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-approval"></use></svg></span><small>Conversions</small><strong>{{ total_conversions }}</strong><em>{{ conversion_rate }}% conversion rate</em></article>
+  </div>
+
+  <div class="cyber-intelligence-grid">
+    <article class="glass-card cyber-chart-card cyber-chart-wide">
+      <header class="cyber-panel-heading"><div><span class="cyber-panel-icon"><svg><use href="#icon-chart"></use></svg></span><div><span class="eyebrow">30-day signal</span><h2>Performance overview</h2></div></div><span class="live-signal"><i></i>Actual events</span></header>
+      <div class="cyber-bar-chart" role="img" aria-label="Daily clicks during the last 30 days">{% for item in timeline %}<i style="--bar:{{ item.percent }}%" title="{{ item.date|date:'M j' }}: {{ item.value }} clicks"><span>{{ item.value }}</span></i>{% endfor %}</div>
+      <div class="cyber-chart-range"><span>{{ timeline.0.date|date:"M j" }}</span><span>Last 30 days</span><span>{{ timeline.29.date|date:"M j" }}</span></div>
+    </article>
+    <article class="glass-card cyber-chart-card"><header class="cyber-panel-heading"><div><span class="cyber-panel-icon"><svg><use href="#icon-link"></use></svg></span><div><span class="eyebrow">Ranked</span><h2>Top links</h2></div></div></header><div class="cyber-ranked-list">{% for link in top_links %}<a href="{% url 'edit_short_url' link.pk %}"><span><b>/{{ link.shorturl }}</b><small>{{ link.longurl|truncatechars:34 }}</small></span><strong>{{ link.event_count }}</strong></a>{% empty %}<p class="panel-empty">No click activity yet.</p>{% endfor %}</div></article>
+  </div>
+
+  <div class="cyber-breakdown-grid">
+    <article class="glass-card cyber-breakdown"><header><h2>Acquisition sources</h2><span>Referrers</span></header>{% for item in referrer_breakdown %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% empty %}<p class="panel-empty">No source data yet.</p>{% endfor %}</article>
+    <article class="glass-card cyber-breakdown"><header><h2>Devices</h2><span>Hardware</span></header>{% for item in device_breakdown %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% empty %}<p class="panel-empty">No device data yet.</p>{% endfor %}</article>
+    <article class="glass-card cyber-breakdown"><header><h2>Browsers</h2><span>Clients</span></header>{% for item in browser_breakdown %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% empty %}<p class="panel-empty">No browser data yet.</p>{% endfor %}</article>
+    <article class="glass-card cyber-breakdown"><header><h2>Operating systems</h2><span>Platforms</span></header>{% for item in operating_system_breakdown %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% empty %}<p class="panel-empty">No platform data yet.</p>{% endfor %}</article>
+  </div>
+</section>
+{% endblock %}

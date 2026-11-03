@@ -23,9 +23,9 @@
 
     <div class="nav-section">
       <span class="nav-section-label">Marketing</span>
-      <a class="sidebar-link dashboard-core-link" href="{% url 'dashboard' %}#traffic-intelligence"><svg class="nav-icon"><use href="#icon-chart"></use></svg><span class="nav-label">Analytics</span></a>
+      <a class="sidebar-link dashboard-core-link {% if current == 'analytics_overview' %}is-active{% endif %}" href="{% url 'analytics_overview' %}" {% if current == 'analytics_overview' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-chart"></use></svg><span class="nav-label">Analytics</span></a>
       <a class="sidebar-link dashboard-core-link {% if current == 'campaign_list' or current == 'campaign_create' or current == 'campaign_edit' %}is-active{% endif %}" href="{% url 'campaign_list' %}"><svg class="nav-icon"><use href="#icon-campaign"></use></svg><span class="nav-label">Campaigns</span></a>
-      <a class="sidebar-link dashboard-core-link dashboard-audience-link" href="{% url 'dashboard' %}#live-activity"><svg class="nav-icon"><use href="#icon-users"></use></svg><span class="nav-label">Audience</span></a>
+      <a class="sidebar-link dashboard-core-link dashboard-audience-link {% if current == 'audience_overview' %}is-active{% endif %}" href="{% url 'audience_overview' %}" {% if current == 'audience_overview' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-users"></use></svg><span class="nav-label">Audience</span></a>
       <a class="sidebar-link {% if current == 'utm_builder' %}is-active{% endif %}" href="{% url 'utm_builder' %}"><svg class="nav-icon"><use href="#icon-tool"></use></svg><span class="nav-label">UTM builder</span></a>
     </div>
 

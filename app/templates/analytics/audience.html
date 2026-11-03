@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Audience Intelligence — OrbitLink{% endblock %}
+{% block styles %}<link rel="stylesheet" href="{% static 'css/operations.css' %}">{% endblock %}
+{% block body_class %}audience-page intelligence-page{% endblock %}
+{% block content %}
+<section class="ops-shell shell cyber-page-shell">
+  <header class="ops-heading premium-page-heading cyber-page-heading"><div><span class="eyebrow">{{ workspace.name }} · audience telemetry</span><h1>Audience <span>Command</span></h1><p>Geographic reach and visitor technology derived only from recorded workspace click events.</p></div></header>
+
+  <section class="audience-hero glass-card">
+    <div><span class="eyebrow">Global signal map</span><h2>Live reach across your network</h2><p>The holographic universe highlights the geographic scope represented by your click telemetry.</p><div class="audience-signal-chips">{% for item in country_breakdown|slice:":5" %}<span>{{ item.label }} <b>{{ item.value }}</b></span>{% empty %}<span>Awaiting geographic signals</span>{% endfor %}</div></div>
+    <div class="audience-globe-anchor" data-hologram-anchor aria-hidden="true"><i></i><i></i><i></i></div>
+  </section>
+
+  <div class="cyber-stat-grid">
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-users"></use></svg></span><small>Unique visitors</small><strong>{{ unique_visitors }}</strong><em>Distinct recorded audience</em></article>
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-chart"></use></svg></span><small>Human events</small><strong>{{ human_events }}</strong><em>Bot-classified traffic excluded</em></article>
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-workspace"></use></svg></span><small>Returning visitors</small><strong>{{ returning_visitors }}</strong><em>{{ returning_rate }}% of known visitors</em></article>
+    <article class="glass-card cyber-stat"><span><svg><use href="#icon-globe"></use></svg></span><small>Total events</small><strong>{{ total_events }}</strong><em>All classified signals</em></article>
+  </div>
+
+  <div class="audience-grid">
+    <article class="glass-card cyber-breakdown audience-country-panel"><header><h2>Countries</h2><span>Geographic reach</span></header>{% for item in country_breakdown %}<div><span><b class="country-code">{{ item.label }}</b>Country signal</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% empty %}<p class="panel-empty">Country data appears when geo headers are available.</p>{% endfor %}</article>
+    <article class="glass-card cyber-breakdown"><header><h2>Regions</h2><span>Regional activity</span></header>{% for item in region_breakdown %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% empty %}<p class="panel-empty">No regional data yet.</p>{% endfor %}</article>
+    <article class="glass-card cyber-breakdown"><header><h2>Cities</h2><span>Local activity</span></header>{% for item in city_breakdown %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% empty %}<p class="panel-empty">No city data yet.</p>{% endfor %}</article>
+    <article class="glass-card cyber-breakdown"><header><h2>Technology</h2><span>Devices and browsers</span></header>{% for item in device_breakdown %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% endfor %}{% for item in browser_breakdown|slice:":3" %}<div><span>{{ item.label }}</span><i><em style="width:{{ item.percent }}%"></em></i><b>{{ item.value }}</b></div>{% endfor %}</article>
+  </div>
+  {{ globe_country_codes|json_script:"audience-country-signals" }}
+</section>
+{% endblock %}
