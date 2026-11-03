@@ -42,12 +42,19 @@
     {% block styles %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/theme.css' %}">
     <link rel="stylesheet" href="{% static 'css/premium.css' %}?v=20261103-1">
+    <link rel="stylesheet" href="{% static 'css/cyber-scene.css' %}?v=20261103-1">
     {% block page_styles %}{% endblock %}
   </head>
-  <body class="{% if user.is_authenticated %}app-authenticated{% else %}public-page{% endif %} {% block body_class %}{% endblock %}">
+  <body class="{% if user.is_authenticated %}app-authenticated{% else %}public-page{% endif %} {% block body_class %}{% endblock %}" data-route="{{ request.resolver_match.url_name|default:'unknown' }}">
     {% include "components/icons.html" %}
     <a class="skip-link" href="#main-content">Skip to content</a>
     {% if user.is_authenticated %}
+      <div class="cyber-universe" aria-hidden="true">
+        <canvas id="cyber-scene" data-route="{{ request.resolver_match.url_name|default:'unknown' }}"></canvas>
+        <div class="cyber-aurora"></div>
+        <div class="cyber-grid"></div>
+        <div class="cyber-vignette"></div>
+      </div>
       <div class="app-layout">
         {% include "components/sidebar.html" %}
         <button class="sidebar-backdrop" type="button" aria-label="Close navigation" tabindex="-1"></button>
@@ -72,6 +79,7 @@
         <div class="button-row confirm-dialog-actions"><button class="button button-secondary" value="cancel">Cancel</button><button class="button button-danger" value="confirm">Confirm</button></div>
       </form>
     </dialog>
+    {% if user.is_authenticated %}<script src="{% static 'js/cyber-scene.js' %}?v=20261103-1" defer></script>{% endif %}
     <script src="{% static 'js/app.js' %}?v=20261103-1" defer></script>
     {% block scripts %}{% endblock %}
   </body>
