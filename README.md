@@ -11,7 +11,7 @@ See [`docs/architecture.md`](docs/architecture.md) for the full diagram and desi
 
 | Layer | Tool |
 |---|---|
-| App | Django (Python), Postgres |
+| App | React 19 + Vite 8, Django (Python), Postgres |
 | Containers | Docker, multi-stage builds |
 | Orchestration | Kubernetes (Deployment, StatefulSet, HPA, Ingress) |
 | IaC | Terraform (AWS VPC + EKS + ECR) |
@@ -23,6 +23,7 @@ See [`docs/architecture.md`](docs/architecture.md) for the full diagram and desi
 
 ```
 app/            Django application (source: NeerajKumarU/Url_short)
+frontend/       React/Vite application and reusable component system
 k8s/            Kubernetes manifests (Deployment, Service, Ingress, HPA, StatefulSet)
 infra/terraform/ AWS infrastructure as code (VPC, EKS, ECR)
 monitoring/     Prometheus/Grafana Helm values, ServiceMonitor, alert rules
@@ -38,6 +39,22 @@ docker compose up --build
 
 Visit http://localhost:8000. Postgres data persists in a named volume
 between runs.
+
+The incremental React application is available after login at
+http://localhost:8000/react/dashboard. The original Django-rendered routes
+remain available during the parity migration.
+
+For frontend development with hot reload, run Django on port 8000, then:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open http://localhost:5173 after signing in through Django. To create the
+production assets served by Django, run `npm run build`; Vite writes them to
+`app/url_short/static/react/`. Docker and CI perform this build automatically.
 
 ## OrbitLink SaaS capabilities
 
@@ -92,21 +109,21 @@ terraform init && terraform apply
 aws eks update-kubeconfig --region ap-south-1 --name devops-portfolio
 
 # 2. Build & push the image (or let CI/CD do this on push to main)
-cd ../../app
-docker build -t ghcr.io/<you>/url-shortener:local .
+cd ../..
+docker build -f app/Dockerfile -t ghcr.io/<you>/url-shortener:local .
 docker push ghcr.io/<you>/url-shortener:local
 
 # 3. Create secrets (never commit the real file)
-cp ../k8s/secret.yaml.example ../k8s/secret.yaml
+cp k8s/secret.yaml.example k8s/secret.yaml
 # edit k8s/secret.yaml with real values, then:
-kubectl apply -f ../k8s/secret.yaml
+kubectl apply -f k8s/secret.yaml
 
 # 4. Deploy the app
-kubectl apply -f ../k8s/namespace.yaml
-kubectl apply -f ../k8s/configmap.yaml
-kubectl apply -f ../k8s/postgres.yaml
-kubectl apply -f ../k8s/web.yaml
-kubectl apply -f ../k8s/ingress.yaml
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/postgres.yaml
+kubectl apply -f k8s/web.yaml
+kubectl apply -f k8s/ingress.yaml
 
 kubectl get pods -n devops-portfolio    # confirm everything is Running
 ```

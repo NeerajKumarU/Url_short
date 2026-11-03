@@ -10,11 +10,15 @@ from . import (
     integration_views,
     intelligence_views,
     link_intelligence_views,
+    react_views,
     workspace_views,
 )
 
 
 urlpatterns = [
+    path("react/api/bootstrap/", react_views.react_bootstrap, name="react_bootstrap"),
+    path("react/", react_views.react_shell, name="react_shell"),
+    path("react/<path:path>", react_views.react_shell, name="react_shell_path"),
     path("", views.home, name="home"),
     path("product/", views.product_overview, name="product_overview"),
     path("health", views.health, name="health"),

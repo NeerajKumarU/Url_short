@@ -1,0 +1,10 @@
+import PageHeader from "../components/PageHeader";
+import PageState from "../components/PageState";
+import { Breakdown, StatCard } from "../components/Intelligence";
+import { usePageData } from "../hooks/usePageData";
+
+function Audience({ data }) {
+  return <section className="ops-shell shell cyber-page-shell"><PageHeader eyebrow={`${data.workspace_name} · audience telemetry`} title="Audience" accent="Command" description="Geographic reach and visitor technology derived only from recorded workspace click events."/><section className="audience-hero glass-card"><div><span className="eyebrow">Global signal map</span><h2>Live reach across your network</h2><p>The holographic universe highlights the geographic scope represented by your click telemetry.</p><div className="audience-signal-chips">{data.countries.length ? data.countries.slice(0, 5).map((item) => <span key={item.label}>{item.label} <b>{item.value}</b></span>) : <span>Awaiting geographic signals</span>}</div></div><div className="audience-globe-anchor" data-hologram-anchor aria-hidden="true"><i/><i/><i/></div></section><div className="cyber-stat-grid"><StatCard icon="users" label="Unique visitors" value={data.unique_visitors} detail="Distinct recorded audience"/><StatCard icon="chart" label="Human events" value={data.human_events} detail="Bot-classified traffic excluded"/><StatCard icon="workspace" label="Returning visitors" value={data.returning_visitors} detail={`${data.returning_rate}% of known visitors`}/><StatCard icon="globe" label="Total events" value={data.total_events} detail="All classified signals"/></div><div className="audience-grid"><Breakdown title="Countries" subtitle="Geographic reach" items={data.countries}/><Breakdown title="Regions" subtitle="Regional activity" items={data.regions}/><Breakdown title="Cities" subtitle="Local activity" items={data.cities}/><Breakdown title="Technology" subtitle="Devices and browsers" items={[...data.devices, ...data.browsers.slice(0, 3)]}/></div></section>;
+}
+
+export default function AudiencePage() { const state = usePageData("audience"); return <PageState state={state}>{(data) => <Audience data={data}/>}</PageState>; }
