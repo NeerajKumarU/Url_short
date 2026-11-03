@@ -11,20 +11,21 @@
   <nav class="sidebar-nav">
     <div class="nav-section">
       <span class="nav-section-label">Overview</span>
-      <a class="sidebar-link {% if current == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}" {% if current == 'dashboard' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-dashboard"></use></svg><span class="nav-label">Dashboard</span></a>
+      <a class="sidebar-link dashboard-core-link {% if current == 'dashboard' %}is-active{% endif %}" href="{% url 'dashboard' %}" {% if current == 'dashboard' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-dashboard"></use></svg><span class="nav-label">Dashboard</span></a>
     </div>
 
     <div class="nav-section">
       <span class="nav-section-label">Links</span>
-      <a class="sidebar-link {% if current == 'my_links' %}is-active{% endif %}" href="{% url 'my_links' %}" {% if current == 'my_links' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-link"></use></svg><span class="nav-label">My links</span></a>
+      <a class="sidebar-link dashboard-core-link {% if current == 'my_links' %}is-active{% endif %}" href="{% url 'my_links' %}" {% if current == 'my_links' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-link"></use></svg><span class="nav-label">Links</span></a>
       {% if shell_can_edit %}<a class="sidebar-link {% if current == 'create_link_page' or current == 'create_short_url' %}is-active{% endif %}" href="{% url 'create_link_page' %}"><svg class="nav-icon"><use href="#icon-plus"></use></svg><span class="nav-label">Create link</span></a>{% endif %}
       <a class="sidebar-link {% if current == 'qr_library' %}is-active{% endif %}" href="{% url 'qr_library' %}"><svg class="nav-icon"><use href="#icon-qr"></use></svg><span class="nav-label">QR codes</span></a>
     </div>
 
     <div class="nav-section">
       <span class="nav-section-label">Marketing</span>
-      <a class="sidebar-link {% if current == 'campaign_list' or current == 'campaign_create' or current == 'campaign_edit' %}is-active{% endif %}" href="{% url 'campaign_list' %}"><svg class="nav-icon"><use href="#icon-campaign"></use></svg><span class="nav-label">Campaigns</span></a>
-      <a class="sidebar-link" href="{% url 'dashboard' %}#analytics"><svg class="nav-icon"><use href="#icon-chart"></use></svg><span class="nav-label">Analytics</span></a>
+      <a class="sidebar-link dashboard-core-link" href="{% url 'dashboard' %}#traffic-intelligence"><svg class="nav-icon"><use href="#icon-chart"></use></svg><span class="nav-label">Analytics</span></a>
+      <a class="sidebar-link dashboard-core-link {% if current == 'campaign_list' or current == 'campaign_create' or current == 'campaign_edit' %}is-active{% endif %}" href="{% url 'campaign_list' %}"><svg class="nav-icon"><use href="#icon-campaign"></use></svg><span class="nav-label">Campaigns</span></a>
+      <a class="sidebar-link dashboard-core-link dashboard-audience-link" href="{% url 'dashboard' %}#live-activity"><svg class="nav-icon"><use href="#icon-users"></use></svg><span class="nav-label">Audience</span></a>
       <a class="sidebar-link {% if current == 'utm_builder' %}is-active{% endif %}" href="{% url 'utm_builder' %}"><svg class="nav-icon"><use href="#icon-tool"></use></svg><span class="nav-label">UTM builder</span></a>
     </div>
 
@@ -58,15 +59,11 @@
 
     <div class="nav-section account-navigation">
       <span class="nav-section-label">Account</span>
-      <a class="sidebar-link {% if current == 'account_settings' %}is-active{% endif %}" href="{% url 'account_settings' %}"><svg class="nav-icon"><use href="#icon-settings"></use></svg><span class="nav-label">Settings</span></a>
+      <a class="sidebar-link dashboard-core-link {% if current == 'account_settings' %}is-active{% endif %}" href="{% url 'account_settings' %}"><svg class="nav-icon"><use href="#icon-settings"></use></svg><span class="nav-label">Settings</span></a>
       <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="sidebar-link sidebar-logout" type="submit"><svg class="nav-icon"><use href="#icon-logout"></use></svg><span class="nav-label">Log out</span></button></form>
     </div>
   </nav>
 
-  <div class="sidebar-workspace">
-    <span class="workspace-avatar">{{ user.username|first|upper }}</span>
-    <span class="workspace-copy"><b>{{ shell_workspace.name|default:user.username }}</b><small>{{ shell_membership.get_role_display|default:"Platform administrator" }}</small></span>
-    <span class="online-dot"><span class="sr-only">Online</span></span>
-  </div>
+  {% if current == 'dashboard' %}<div class="sidebar-plan-card"><span class="plan-crown" aria-hidden="true">♔</span><span><b>Pro Plan</b><small>{{ total_clicks }} click{{ total_clicks|pluralize }} tracked</small></span><i><em style="width:{% if total_clicks > 100000 %}100{% else %}{% widthratio total_clicks 100000 100 %}{% endif %}%"></em></i></div>{% else %}<div class="sidebar-workspace"><span class="workspace-avatar">{{ user.username|first|upper }}</span><span class="workspace-copy"><b>{{ shell_workspace.name|default:user.username }}</b><small>{{ shell_membership.get_role_display|default:"Platform administrator" }}</small></span><span class="online-dot"><span class="sr-only">Online</span></span></div>{% endif %}
 </aside>
 {% endwith %}

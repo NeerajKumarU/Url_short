@@ -23,14 +23,7 @@ from .conversions import destination_with_conversion_token
 from .experiments import select_experiment_variant, set_assignment_cookie
 from .forms import LinkEditForm, RegisterForm, ShortUrlForm
 from .link_services import create_link_version, public_url_for_link
-from .models import (
-    AnalyticsAnomaly,
-    ClickEvent,
-    ConversionEvent,
-    RedirectRule,
-    WorkspaceMembership,
-    urlModel,
-)
+from .models import ClickEvent, ConversionEvent, RedirectRule, WorkspaceMembership, urlModel
 from .permissions import require_link_access, require_workspace_role, workspace_role
 from .routing import resolve_destination
 from .security import assess_destination
@@ -355,6 +348,7 @@ def dashboard(request):
         .annotate(
             last_click=Max("clicks__clicked_at"),
             unique_clickers=Count("clicks__ip_address", distinct=True),
+            conversion_count=Count("conversions", distinct=True),
         )
         .order_by("-created_at")
     )
@@ -375,6 +369,46 @@ def dashboard(request):
     conversions = ConversionEvent.objects.filter(link__in=links)
     total_clicks = links.aggregate(total=Sum("count"))["total"] or 0
     total_conversions = conversions.count()
+    current_window_start = now - timedelta(days=7)
+    previous_window_start = now - timedelta(days=14)
+
+    def growth(current, previous):
+        if previous:
+            return round(((current - previous) / previous) * 100, 1)
+        return 100.0 if current else 0.0
+
+    current_links = links.filter(created_at__gte=current_window_start).count()
+    previous_links = links.filter(
+        created_at__gte=previous_window_start,
+        created_at__lt=current_window_start,
+    ).count()
+    current_clicks = all_events.filter(clicked_at__gte=current_window_start).count()
+    previous_clicks = all_events.filter(
+        clicked_at__gte=previous_window_start,
+        clicked_at__lt=current_window_start,
+    ).count()
+    current_visitors = (
+        all_events.filter(clicked_at__gte=current_window_start)
+        .exclude(ip_address__isnull=True)
+        .values("ip_address")
+        .distinct()
+        .count()
+    )
+    previous_visitors = (
+        all_events.filter(
+            clicked_at__gte=previous_window_start,
+            clicked_at__lt=current_window_start,
+        )
+        .exclude(ip_address__isnull=True)
+        .values("ip_address")
+        .distinct()
+        .count()
+    )
+    current_conversions = conversions.filter(created_at__gte=current_window_start).count()
+    previous_conversions = conversions.filter(
+        created_at__gte=previous_window_start,
+        created_at__lt=current_window_start,
+    ).count()
     human_clicks = all_events.filter(
         bot_classification=ClickEvent.BotClassification.HUMAN
     ).count()
@@ -439,13 +473,13 @@ def dashboard(request):
         "clicks_week": events.filter(clicked_at__date__gte=week_start).count(),
         "total_conversions": total_conversions,
         "conversion_rate": round((total_conversions / total_clicks) * 100, 1) if total_clicks else 0,
+        "link_growth": growth(current_links, previous_links),
+        "click_growth": growth(current_clicks, previous_clicks),
+        "visitor_growth": growth(current_visitors, previous_visitors),
+        "conversion_growth": growth(current_conversions, previous_conversions),
         "click_timeline": click_timeline,
         "top_links": links.order_by("-count", "shorturl")[:5],
         "recent_clicks": all_events.select_related("short_url").order_by("-clicked_at")[:6],
-        "latest_anomaly": AnalyticsAnomaly.objects.filter(
-            workspace=workspace,
-            resolved_at__isnull=True,
-        ).select_related("link", "campaign").first(),
         "browser_breakdown": _breakdown(events, "browser"),
         "device_breakdown": _breakdown(events, "device_type"),
         "operating_system_breakdown": _breakdown(events, "operating_system"),
