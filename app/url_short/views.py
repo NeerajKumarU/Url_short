@@ -23,7 +23,14 @@ from .conversions import destination_with_conversion_token
 from .experiments import select_experiment_variant, set_assignment_cookie
 from .forms import LinkEditForm, RegisterForm, ShortUrlForm
 from .link_services import create_link_version, public_url_for_link
-from .models import ClickEvent, ConversionEvent, RedirectRule, WorkspaceMembership, urlModel
+from .models import (
+    AnalyticsAnomaly,
+    ClickEvent,
+    ConversionEvent,
+    RedirectRule,
+    WorkspaceMembership,
+    urlModel,
+)
 from .permissions import require_link_access, require_workspace_role, workspace_role
 from .routing import resolve_destination
 from .security import assess_destination
@@ -345,7 +352,10 @@ def dashboard(request):
     require_workspace_role(request.user, workspace, WorkspaceMembership.Role.VIEWER)
     links = (
         links_for_workspace(request.user, workspace)
-        .annotate(last_click=Max("clicks__clicked_at"))
+        .annotate(
+            last_click=Max("clicks__clicked_at"),
+            unique_clickers=Count("clicks__ip_address", distinct=True),
+        )
         .order_by("-created_at")
     )
     all_events = ClickEvent.objects.filter(short_url__in=links)
@@ -431,7 +441,11 @@ def dashboard(request):
         "conversion_rate": round((total_conversions / total_clicks) * 100, 1) if total_clicks else 0,
         "click_timeline": click_timeline,
         "top_links": links.order_by("-count", "shorturl")[:5],
-        "recent_clicks": all_events.select_related("short_url").order_by("-clicked_at")[:8],
+        "recent_clicks": all_events.select_related("short_url").order_by("-clicked_at")[:6],
+        "latest_anomaly": AnalyticsAnomaly.objects.filter(
+            workspace=workspace,
+            resolved_at__isnull=True,
+        ).select_related("link", "campaign").first(),
         "browser_breakdown": _breakdown(events, "browser"),
         "device_breakdown": _breakdown(events, "device_type"),
         "operating_system_breakdown": _breakdown(events, "operating_system"),

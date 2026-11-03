@@ -1,95 +1,82 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}Dashboard — OrbitLink{% endblock %}
-{% block styles %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">{% endblock %}
-{% block body_class %}dashboard-page{% endblock %}
+{% block title %}Intelligence Stack — OrbitLink{% endblock %}
+{% block body_class %}dashboard-page spatial-dashboard-page{% endblock %}
+{% block page_styles %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=20261103-1">{% endblock %}
 {% block content %}
-<div class="dashboard-shell shell">
-  <header class="dashboard-heading premium-page-heading">
-    <div>
-      <div class="heading-meta"><span class="live-indicator"><i></i> Live workspace</span><span>{% now "l, F j" %}</span></div>
-      <span class="eyebrow">{{ workspace.name }}</span>
-      <h1>Welcome back, <span class="heading-accent">{{ user.username }}</span>.</h1>
-      <p>Your link network, audience signals, and campaign performance in one live view.</p>
-    </div>
-    <div class="button-row">
-      {% if workspace_role == 'OWNER' or workspace_role == 'ADMIN' %}<a class="button button-secondary" href="{% url 'approval_list' %}"><svg><use href="#icon-approval"></use></svg>Approvals</a>{% endif %}
-      <a class="button button-secondary" href="{% url 'anomaly_list' %}"><svg><use href="#icon-alert"></use></svg>Anomalies</a>
-      <a class="button button-primary" href="{% url 'create_link_page' %}"><svg><use href="#icon-plus"></use></svg>Create link</a>
-    </div>
+<div class="spatial-dashboard shell">
+  <header class="spatial-heading">
+    <div><span class="spatial-heading-mark" aria-hidden="true"></span><h1>Intelligence Stack</h1><p>A layered view of your links, performance, and audience signals.</p></div>
+    <a class="button button-primary spatial-create-button" href="{% url 'create_link_page' %}"><svg><use href="#icon-plus"></use></svg>Create link</a>
   </header>
 
-  <section class="summary-grid premium-summary-grid" aria-label="Workspace analytics summary">
-    <article class="metric-card metric-primary">
-      <div class="metric-card-top"><span>Total links</span><span class="metric-icon"><svg><use href="#icon-link"></use></svg></span></div>
-      <strong>{{ total_links }}</strong><small><b>{{ active_links }}</b> active · {{ expired_links }} expired</small>
-    </article>
-    <article class="metric-card metric-cyan">
-      <div class="metric-card-top"><span>Total clicks</span><span class="metric-icon"><svg><use href="#icon-chart"></use></svg></span></div>
-      <strong>{{ total_clicks }}</strong><small><b id="live-clicks-today">{{ clicks_today }}</b> today · <span id="live-clicks-five">—</span> in 5 min</small>
-    </article>
-    <article class="metric-card metric-blue">
-      <div class="metric-card-top"><span>Unique visitors</span><span class="metric-icon"><svg><use href="#icon-users"></use></svg></span></div>
-      <strong>{{ unique_visitors }}</strong><small>Based on stored visitor identifiers</small>
-    </article>
-    <article class="metric-card metric-purple">
-      <div class="metric-card-top"><span>Conversions</span><span class="metric-icon"><svg><use href="#icon-approval"></use></svg></span></div>
-      <strong id="live-conversions">{{ total_conversions }}</strong><small><b>{{ conversion_rate }}%</b> click-to-conversion rate</small>
-    </article>
-    <article class="metric-card metric-emerald">
-      <div class="metric-card-top"><span>Active campaigns</span><span class="metric-icon"><svg><use href="#icon-campaign"></use></svg></span></div>
-      <strong>{{ active_campaigns }}</strong><small>{{ workspace_campaigns }} campaign{{ workspace_campaigns|pluralize }} total</small>
-    </article>
-  </section>
+  <section class="spatial-overview" aria-label="Layered workspace intelligence">
+    <div class="stack-labels" aria-hidden="true"><span class="stack-label label-intelligence">Intelligence<i></i></span><span class="stack-label label-metrics">Metrics<i></i></span><span class="stack-label label-analytics">Analytics<i></i></span><span class="stack-label label-data">Data<i></i></span></div>
 
-  <section class="dashboard-section" id="analytics" aria-labelledby="analytics-title">
-    <div class="section-title-row">
-      <div><span class="eyebrow">Traffic intelligence</span><h2 id="analytics-title">Audience signals</h2><p>{{ human_clicks }} human · {{ bot_clicks }} bot-classified · {{ filtered_clicks }} in this view</p></div>
-      <form class="compact-filter" method="get"><label class="sr-only" for="traffic-filter">Traffic filter</label><select id="traffic-filter" name="traffic" onchange="this.form.submit()"><option value="all" {% if traffic_filter == 'all' %}selected{% endif %}>All traffic</option><option value="human" {% if traffic_filter == 'human' %}selected{% endif %}>Human traffic</option><option value="bot" {% if traffic_filter == 'bot' %}selected{% endif %}>Bot traffic</option></select></form>
-    </div>
-    <div class="analytics-grid premium-analytics-grid">
-      <article class="glass-card chart-card chart-wide traffic-chart-card">
-        <div class="chart-heading"><div><span class="chart-kicker">Last 7 days</span><h3>Click activity</h3><p>Successful redirects from real click events</p></div><div class="chart-total"><strong>{{ clicks_week }}</strong><small>clicks</small></div></div>
-        <div class="timeline-chart" aria-label="Click totals for the last seven days">{% for item in click_timeline %}<div class="timeline-column" title="{{ item.date|date:'M j' }}: {{ item.value }} click{{ item.value|pluralize }}"><span class="bar-value">{{ item.value }}</span><div class="timeline-track"><i style="height: {% if item.value %}{{ item.percent }}{% else %}3{% endif %}%"></i></div><small>{{ item.label }}</small></div>{% endfor %}</div>
+    <div class="intelligence-stack" data-intelligence-stack>
+      <article class="intelligence-layer data-layer">
+        <div class="layer-edge"></div>
+        <div class="map-art" aria-hidden="true">
+          <svg viewBox="0 0 720 270" preserveAspectRatio="xMidYMid meet">
+            <defs><filter id="mapGlow"><feGaussianBlur stdDeviation="5" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter><pattern id="mapDots" width="8" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.35" fill="#7385c8"/></pattern></defs>
+            <g fill="url(#mapDots)" opacity=".8"><path d="M57 80l35-34 67-13 39 18 18 31-27 19-19 36-38 9-28-18-25-6-19-25zM204 157l29 13 18 29-8 43-21 30-17-21 4-34-16-27zM315 55l42-22 67 8 27 21 57-6 62 25 70 7 32 34-13 25-54 6-39 28-41 3-24-18-27-38-32-7-23 24-25-8-8-32-33-21zM505 194l48-17 45 14 31 32-23 28-47-2-37-20z"/></g>
+            <g class="map-pulses" filter="url(#mapGlow)"><circle cx="128" cy="91" r="5"/><circle cx="224" cy="191" r="5"/><circle cx="389" cy="91" r="5"/><circle cx="475" cy="135" r="5"/><circle cx="581" cy="112" r="5"/><circle cx="568" cy="218" r="5"/></g>
+          </svg>
+        </div>
+        <div class="data-layer-meta"><span><i></i>Live signal map</span><b>{{ filtered_clicks }} recorded event{{ filtered_clicks|pluralize }}</b></div>
       </article>
-      <article class="glass-card chart-card top-links-card">
-        <div class="chart-heading"><div><span class="chart-kicker">Lifetime</span><h3>Top links</h3><p>Highest click volume</p></div><a class="chart-link" href="{% url 'my_links' %}?sort=clicks">View all</a></div>
-        <div class="rank-list">{% for link in top_links %}<div><span class="rank-index">0{{ forloop.counter }}</span><span><b>/{{ link.shorturl }}</b><small>{{ link.longurl|truncatechars:34 }}</small></span><strong>{{ link.count }}</strong></div>{% empty %}<p class="muted">No click data yet.</p>{% endfor %}</div>
+
+      <article class="intelligence-layer analytics-layer">
+        <div class="layer-edge"></div>
+        <div class="analytics-layer-head"><span>CLICK ANALYTICS</span><b>{{ clicks_week }} <small>last 7 days</small></b></div>
+        <svg class="layer-line-chart" viewBox="0 0 720 210" preserveAspectRatio="none" data-layer-chart aria-label="Click activity for the last seven days"><defs><linearGradient id="stackLine" x1="0" x2="1"><stop stop-color="#8b5cf6"/><stop offset=".52" stop-color="#60a5fa"/><stop offset="1" stop-color="#22d3ee"/></linearGradient><linearGradient id="stackArea" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#22d3ee" stop-opacity=".34"/><stop offset="1" stop-color="#8b5cf6" stop-opacity="0"/></linearGradient></defs><path class="layer-chart-grid" d="M20 40H700M20 90H700M20 140H700M120 15V180M220 15V180M320 15V180M420 15V180M520 15V180M620 15V180"/><path data-chart-area fill="url(#stackArea)"/><polyline data-chart-line fill="none" stroke="url(#stackLine)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/><g data-chart-points></g></svg>
+        <div class="chart-values" data-chart-values>{% for item in click_timeline %}<span data-value="{{ item.value }}"><b>{{ item.value }}</b><small>{{ item.label }}</small></span>{% endfor %}</div>
       </article>
-      <article class="glass-card chart-card"><div class="chart-heading"><div><span class="chart-kicker">Technology</span><h3>Devices</h3><p>Visitor screen context</p></div></div>{% include "partials/breakdown.html" with rows=device_breakdown empty_text="Device data will appear after a click." %}</article>
-      <article class="glass-card chart-card"><div class="chart-heading"><div><span class="chart-kicker">Technology</span><h3>Browsers</h3><p>Where visitors browse</p></div></div>{% include "partials/breakdown.html" with rows=browser_breakdown empty_text="Browser data will appear after a click." %}</article>
-      <article class="glass-card chart-card"><div class="chart-heading"><div><span class="chart-kicker">Technology</span><h3>Operating systems</h3><p>Visitor platform mix</p></div></div>{% include "partials/breakdown.html" with rows=operating_system_breakdown empty_text="OS data will appear after a click." %}</article>
-      <article class="glass-card chart-card"><div class="chart-heading"><div><span class="chart-kicker">Acquisition</span><h3>Referrers</h3><p>How visitors arrive</p></div></div>{% include "partials/breakdown.html" with rows=referrer_breakdown empty_text="Referrer data will appear after a click." %}</article>
+
+      <article class="intelligence-layer metrics-layer">
+        <div class="layer-edge"></div>
+        <div class="stack-metric"><span class="stack-metric-icon metric-clicks"><svg><use href="#icon-chart"></use></svg></span><span><b>Total clicks</b><strong>{{ total_clicks }}</strong><small><i></i><span id="live-clicks-today">{{ clicks_today }}</span> today</small></span></div>
+        <div class="stack-metric"><span class="stack-metric-icon metric-visitors"><svg><use href="#icon-users"></use></svg></span><span><b>Unique visitors</b><strong>{{ unique_visitors }}</strong><small><i></i>Stored identifiers</small></span></div>
+        <div class="stack-metric"><span class="stack-metric-icon metric-links"><svg><use href="#icon-link"></use></svg></span><span><b>Total links</b><strong>{{ total_links }}</strong><small><i></i>{{ active_links }} active</small></span></div>
+      </article>
+
+      <article class="intelligence-layer insight-layer {% if latest_anomaly %}has-anomaly{% endif %}">
+        <div class="layer-edge"></div>
+        <span class="insight-orb"><svg><use href="{% if latest_anomaly %}#icon-alert{% else %}#icon-approval{% endif %}"></use></svg></span>
+        <div class="insight-copy"><span>INTELLIGENCE</span>{% if latest_anomaly %}<h2>{{ latest_anomaly.get_anomaly_type_display }}</h2><p>{{ latest_anomaly.explanation|truncatechars:115 }}</p>{% else %}<h2>All signals steady</h2><p>No unresolved analytics anomalies in {{ workspace.name }}.</p>{% endif %}</div>
+        <div class="insight-status"><span>{% if latest_anomaly %}{{ latest_anomaly.get_severity_display }}{% else %}Healthy{% endif %}</span><div class="insight-bars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div></div>
+      </article>
+    </div>
+
+    <aside class="live-events-panel glass-card" aria-labelledby="live-events-title">
+      <header><span class="live-event-icon"><svg><use href="#icon-chart"></use></svg></span><div><span>REAL-TIME SIGNALS</span><h2 id="live-events-title">Live Events</h2></div><i class="live-event-pulse"><span class="sr-only">Live</span></i></header>
+      <div class="live-event-list">{% for click in recent_clicks %}<a href="{% url 'edit_short_url' click.short_url.pk %}" class="live-event-item"><span class="event-type-icon"><svg><use href="#icon-link"></use></svg></span><span><b>Link clicked</b><small>/{{ click.short_url.shorturl }}</small><em>{{ click.browser }} · {{ click.device_type }}{% if click.country_code %} · {{ click.country_code }}{% endif %}</em></span><time datetime="{{ click.clicked_at|date:'c' }}">{{ click.clicked_at|timesince }} ago</time></a>{% empty %}<div class="live-events-empty"><span class="event-type-icon"><svg><use href="#icon-chart"></use></svg></span><b>Waiting for a signal</b><p>New click events will appear here.</p></div>{% endfor %}</div>
+      <a class="live-events-footer" href="{% url 'dashboard' %}#recent-events">View traffic details <span>→</span></a>
+    </aside>
+  </section>
+
+  <section class="recent-links-panel glass-card" aria-labelledby="recent-links-title">
+    <header><div><span>LINK NETWORK</span><h2 id="recent-links-title">Recent Links</h2></div><a class="button button-primary" href="{% url 'create_link_page' %}"><svg><use href="#icon-plus"></use></svg>Create link</a></header>
+    <div class="spatial-table-wrap">
+      <table class="spatial-link-table responsive-table"><thead><tr><th>Link</th><th>Destination</th><th>Clicks</th><th>Visitors</th><th>Status</th><th>Created</th><th><span class="sr-only">Actions</span></th></tr></thead><tbody>{% for link in links %}<tr><td data-label="Link"><a class="spatial-short-link" href="{{ link.public_url }}" target="_blank" rel="noopener"><span><svg><use href="#icon-link"></use></svg></span>/{{ link.shorturl }}</a></td><td data-label="Destination"><span class="spatial-destination" title="{{ link.longurl }}">{{ link.longurl }}</span></td><td data-label="Clicks"><strong>{{ link.count }}</strong></td><td data-label="Visitors"><strong>{{ link.unique_clickers }}</strong></td><td data-label="Status"><span class="status-pill {% if link.status_label == 'Active' %}status-approved{% else %}status-warning{% endif %}">{{ link.status_label }}</span></td><td data-label="Created"><time datetime="{{ link.created_at|date:'c' }}">{{ link.created_at|timesince }} ago</time></td><td class="table-actions"><details class="action-menu"><summary aria-label="Actions for {{ link.shorturl }}"><svg><use href="#icon-more"></use></svg></summary><div><button class="copy-button" type="button" data-copy="{{ link.public_url }}">Copy link</button><a href="{% url 'qr_code' link.pk %}" target="_blank">View QR</a><a href="{% url 'edit_short_url' link.pk %}">Edit link</a><a href="{% url 'routing_rule_list' link.pk %}">Smart routing</a><a href="{% url 'experiment_list' link.pk %}">Experiments</a><form method="post" action="{% url 'delete_short_url' link.pk %}" data-confirm="Delete /{{ link.shorturl }}? This cannot be undone.">{% csrf_token %}<button type="submit">Delete link</button></form></div></details></td></tr>{% empty %}<tr><td colspan="7"><div class="spatial-table-empty"><b>Your link network is empty</b><p>Create a link to begin collecting real traffic signals.</p><a class="button button-primary" href="{% url 'create_link_page' %}">Create your first link</a></div></td></tr>{% endfor %}</tbody></table>
     </div>
   </section>
 
-  <section class="dashboard-section" id="links" aria-labelledby="links-title">
-    <div class="section-title-row"><div><span class="eyebrow">Link network</span><h2 id="links-title">Recent links</h2><p>Your latest destinations and their current availability.</p></div><div class="button-row"><span class="count-chip">{{ total_links }} total</span><a class="button button-secondary" href="{% url 'my_links' %}">Manage links</a></div></div>
-    {% if links %}
-      <div class="table-wrap glass-card">
-        <table class="link-table responsive-table">
-          <thead><tr><th>Short link</th><th>Destination</th><th>Status</th><th>Clicks</th><th>Created / expiry</th><th><span class="sr-only">Actions</span></th></tr></thead>
-          <tbody>{% for link in links %}<tr>
-            <td data-label="Short link"><div class="link-identity"><span class="link-favicon">{{ link.shorturl|first|upper }}</span><span><a class="short-link" href="{{ link.public_url }}" target="_blank" rel="noopener">/{{ link.shorturl }}</a><small>{{ link.campaign.name|default:"Unassigned" }}</small></span></div><button class="icon-button copy-button" type="button" data-copy="{{ link.public_url }}" aria-label="Copy {{ link.shorturl }}"><svg><use href="#icon-copy"></use></svg></button></td>
-            <td data-label="Destination"><span class="destination" title="{{ link.longurl }}">{{ link.longurl }}</span></td>
-            <td data-label="Status"><span class="badge {% if link.status_label == 'Active' %}badge-active{% elif link.status_label == 'Expired' or link.status_label == 'Blocked' or link.status_label == 'Disabled' %}badge-expired{% endif %}">{{ link.status_label }}</span></td>
-            <td data-label="Clicks"><strong>{{ link.count }}</strong>{% if link.last_click %}<small>Last {{ link.last_click|timesince }} ago</small>{% endif %}</td>
-            <td data-label="Created"><span>{{ link.created_at|date:"M j, Y" }}</span><small>{% if link.expires_at %}Expires {{ link.expires_at|date:"M j, Y · H:i" }}{% else %}Never expires{% endif %}</small></td>
-            <td class="table-actions"><details class="action-menu"><summary aria-label="Actions for {{ link.shorturl }}"><svg><use href="#icon-more"></use></svg></summary><div><a href="{% url 'redirect_short_url' link.shorturl %}" target="_blank" rel="noopener">Open destination</a><a href="{% url 'qr_code' link.pk %}" target="_blank">View QR</a><a href="{% url 'edit_short_url' link.pk %}">Edit link</a><a href="{% url 'routing_rule_list' link.pk %}">Smart routing</a><a href="{% url 'experiment_list' link.pk %}">Experiments</a><a href="{% url 'link_version_list' link.pk %}">Version history</a>{% if link.approval_status != 'APPROVED' %}<form method="post" action="{% url 'link_submit_approval' link.pk %}">{% csrf_token %}<button type="submit">Submit for approval</button></form>{% endif %}<form method="post" action="{% url 'delete_short_url' link.pk %}" data-confirm="Delete /{{ link.shorturl }}? This cannot be undone.">{% csrf_token %}<button type="submit">Delete link</button></form></div></details></td>
-          </tr>{% endfor %}</tbody>
-        </table>
-      </div>
-    {% else %}
-      <div class="glass-card empty-state"><span class="empty-icon"><svg><use href="#icon-link"></use></svg></span><h3>Your first signal starts here.</h3><p>Create a short link and its analytics will appear in this dashboard.</p><a class="button button-primary" href="{% url 'create_link_page' %}">Create your first link</a></div>
-    {% endif %}
-  </section>
-
-  <section class="dashboard-section" aria-labelledby="activity-title">
-    <div class="section-title-row"><div><span class="eyebrow">Live activity</span><h2 id="activity-title">Recent click events</h2><p>Latest recorded traffic with privacy-aware metadata.</p></div></div>
-    <div class="table-wrap glass-card">
-      <table class="ops-table responsive-table activity-table"><thead><tr><th>Time</th><th>Link</th><th>Device</th><th>Browser</th><th>Source</th><th>Location</th><th>Classification</th></tr></thead><tbody>{% for click in recent_clicks %}<tr><td data-label="Time">{{ click.clicked_at|date:"M j, H:i" }}</td><td data-label="Link"><strong>/{{ click.short_url.shorturl }}</strong></td><td data-label="Device">{{ click.device_type }}</td><td data-label="Browser">{{ click.browser }}</td><td data-label="Source">{{ click.referrer_source }}</td><td data-label="Location">{% if click.city %}{{ click.city }}, {% endif %}{{ click.country_code|default:"Unknown" }}</td><td data-label="Classification"><span class="status-pill {% if click.bot_classification == 'HUMAN' %}status-approved{% else %}status-warning{% endif %}">{{ click.get_bot_classification_display }}</span></td></tr>{% empty %}<tr><td colspan="7"><div class="empty-state compact-empty"><h3>No click activity yet</h3><p>Events will appear after your links receive traffic.</p></div></td></tr>{% endfor %}</tbody></table>
-    </div>
+  <section class="signal-detail-grid" id="recent-events" aria-label="Traffic signal details">
+    <article class="glass-card signal-detail-card"><header><span>Technology</span><h2>Browsers</h2></header>{% include "partials/breakdown.html" with rows=browser_breakdown empty_text="Browser data will appear after a click." %}</article>
+    <article class="glass-card signal-detail-card"><header><span>Technology</span><h2>Devices</h2></header>{% include "partials/breakdown.html" with rows=device_breakdown empty_text="Device data will appear after a click." %}</article>
+    <article class="glass-card signal-detail-card"><header><span>Acquisition</span><h2>Referrers</h2></header>{% include "partials/breakdown.html" with rows=referrer_breakdown empty_text="Referrer data will appear after a click." %}</article>
   </section>
 </div>
 {% endblock %}
-{% block scripts %}<script>document.addEventListener("DOMContentLoaded",()=>{const refresh=async()=>{try{const response=await fetch("{% url 'realtime_analytics' %}",{headers:{"Accept":"application/json"}});if(!response.ok)return;const data=await response.json();document.getElementById("live-clicks-today").textContent=data.clicks_today;document.getElementById("live-clicks-five").textContent=data.clicks_last_5_minutes;document.getElementById("live-conversions").textContent=data.conversions_today;}catch(error){/* Keep the last accurate server-rendered values when refresh is unavailable. */}};refresh();window.setInterval(refresh,30000);});</script>{% endblock %}
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded",()=>{
+  const values=[...document.querySelectorAll("[data-chart-values] [data-value]")].map(item=>Number(item.dataset.value)||0);
+  const line=document.querySelector("[data-chart-line]");const area=document.querySelector("[data-chart-area]");const pointsGroup=document.querySelector("[data-chart-points]");
+  if(line&&area&&pointsGroup&&values.length){const max=Math.max(...values,1);const left=28,right=692,bottom=174,top=24;const step=(right-left)/Math.max(values.length-1,1);const points=values.map((value,index)=>`${left+(step*index)},${bottom-((value/max)*(bottom-top))}`);line.setAttribute("points",points.join(" "));area.setAttribute("d",`M ${left} ${bottom} L ${points.join(" L ")} L ${right} ${bottom} Z`);points.forEach(point=>{const [cx,cy]=point.split(",");const circle=document.createElementNS("http://www.w3.org/2000/svg","circle");circle.setAttribute("cx",cx);circle.setAttribute("cy",cy);circle.setAttribute("r","5");pointsGroup.append(circle);});}
+  const refresh=async()=>{try{const response=await fetch("{% url 'realtime_analytics' %}",{headers:{"Accept":"application/json"}});if(!response.ok)return;const data=await response.json();const clicksToday=document.getElementById("live-clicks-today");if(clicksToday)clicksToday.textContent=data.clicks_today;}catch(error){/* Preserve server-rendered values. */}};
+  window.setInterval(refresh,30000);
+});
+</script>
+{% endblock %}
