@@ -12,6 +12,7 @@ import LegacyPage from "../pages/LegacyPage";
 import LinksPage from "../pages/LinksPage";
 import QrCodesPage from "../pages/QrCodesPage";
 import SettingsPage from "../pages/SettingsPage";
+import SecurityPage from "../pages/SecurityPage";
 
 export default function App() {
   const [state, setState] = useState({ loading: true, shell: null, error: null });
@@ -22,5 +23,5 @@ export default function App() {
   useEffect(load, [load]);
   if (state.loading) return <Loading/>;
   if (state.error) return <ErrorState error={state.error} retry={load}/>;
-  return <AppearanceProvider><Routes><Route element={<AppShell shell={state.shell}/>}><Route index element={<Navigate to="dashboard" replace/>}/><Route path="dashboard" element={<DashboardPage/>}/><Route path="links" element={<LinksPage/>}/><Route path="analytics" element={<AnalyticsPage/>}/><Route path="audience" element={<AudiencePage/>}/><Route path="campaigns" element={<CampaignsPage/>}/><Route path="qr-codes" element={<QrCodesPage/>}/><Route path="settings" element={<SettingsPage/>}/><Route path="*" element={<LegacyPage/>}/></Route></Routes></AppearanceProvider>;
+  return <AppearanceProvider><Routes><Route element={<AppShell shell={state.shell}/>}><Route index element={<Navigate to="dashboard" replace/>}/><Route path="dashboard" element={<DashboardPage/>}/><Route path="links" element={<LinksPage/>}/><Route path="analytics" element={<AnalyticsPage/>}/><Route path="audience" element={<AudiencePage/>}/><Route path="campaigns" element={<CampaignsPage/>}/><Route path="qr-codes" element={<QrCodesPage/>}/><Route path="security" element={<SecurityPage/>}/><Route path="settings" element={<SettingsPage/>}/><Route path="*" element={<LegacyPage/>}/></Route></Routes></AppearanceProvider>;
 }

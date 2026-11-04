@@ -63,7 +63,24 @@ smart routing, scheduling, A/B tests, conversions, approvals, audit logs,
 destination safety, abuse reports, bot classification, API keys, signed
 webhooks, atomic CSV imports, periodic analytics refresh, trusted-edge geo
 fields, retention controls, explainable anomaly findings, email notifications,
-and authorization-scoped AI assistants.
+authorization-scoped AI assistants, and OrbitShield intelligent click
+monitoring.
+
+### OrbitShield intelligent click monitoring
+
+The React Security Center at `/react/security` turns live click telemetry into
+workspace-scoped, explainable incidents. It combines traffic spikes, repeated
+privacy-safe visitor fingerprints, per-minute velocity, bot classification,
+geographic shifts, and user-agent anomalies into a 0–100 risk score. Owners and
+admins can investigate, dismiss, resolve, temporarily suspend, security-block,
+or reactivate an affected link. Every response action is written to the audit
+log; viewers have read-only access.
+
+Monitoring policy is configurable per workspace, including sensitivity, alert
+threshold, email/webhook delivery, and optional 15-minute automatic throttling
+for risk scores of 90 or higher. Raw visitor IPs are never returned by the
+security APIs. Set `ORBITLINK_IP_FINGERPRINT_SECRET` to an independent,
+production-grade secret before deployment.
 
 Copy `.env.example` when preparing an environment. AI and real SMTP delivery
 are optional: without an AI key the UI says the feature is unavailable, and
@@ -80,9 +97,10 @@ python manage.py process_operations
 ```
 
 Run `process_operations` on a scheduler (for example every five minutes) to
-retry eligible webhook deliveries, scan explainable traffic rules, anonymize
-expired IP data, and send lifecycle notifications. No queue service is required;
-the command is deliberately ready to move behind a worker later.
+retry eligible webhook deliveries, scan OrbitShield and explainable traffic
+rules, expire temporary security suspensions, anonymize expired IP data, and
+send lifecycle notifications. No queue service is required; the command is
+deliberately ready to move behind a worker later.
 
 Workspace administration pages include:
 

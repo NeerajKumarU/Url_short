@@ -1,4 +1,4 @@
-from .models import AnalyticsAnomaly, ApprovalRequest, WorkspaceMembership
+from .models import AnalyticsAnomaly, ApprovalRequest, SecurityIncident, WorkspaceMembership
 
 
 ROLE_RANK = {
@@ -31,10 +31,16 @@ def application_shell(request):
 
     anomaly_count = 0
     approval_count = 0
+    security_count = 0
     if workspace is not None:
         anomaly_count = AnalyticsAnomaly.objects.filter(
             workspace=workspace,
             resolved_at__isnull=True,
+        ).count()
+        security_count = SecurityIncident.objects.filter(
+            workspace=workspace,
+            status__in=(SecurityIncident.Status.OPEN, SecurityIncident.Status.INVESTIGATING),
+            severity__in=(SecurityIncident.Severity.HIGH, SecurityIncident.Severity.CRITICAL),
         ).count()
         if role_rank >= ROLE_RANK[WorkspaceMembership.Role.ADMIN] or request.user.is_superuser:
             approval_count = ApprovalRequest.objects.filter(
@@ -51,5 +57,6 @@ def application_shell(request):
         "shell_is_platform_admin": is_platform_admin,
         "shell_anomaly_count": anomaly_count,
         "shell_approval_count": approval_count,
-        "shell_notification_count": anomaly_count + approval_count,
+        "shell_security_count": security_count,
+        "shell_notification_count": anomaly_count + approval_count + security_count,
     }

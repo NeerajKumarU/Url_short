@@ -29,6 +29,34 @@ export async function apiRequest(path, options = {}) {
   return data;
 }
 
+function csrfToken() {
+  const value = document.cookie.split("; ").find((item) => item.startsWith("csrftoken="));
+  return value ? decodeURIComponent(value.split("=").slice(1).join("=")) : "";
+}
+
+export function postJson(path, body = {}) {
+  return apiRequest(path, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken(),
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+export function securityAction(incidentId, action, note = "") {
+  return postJson(`/react/api/security/incidents/${incidentId}/action/`, { action, note });
+}
+
+export function updateSecuritySettings(settings) {
+  return postJson("/react/api/security/settings/", settings);
+}
+
+export function scanSecurityNow() {
+  return postJson("/react/api/security/scan/");
+}
+
 export function getBootstrap(page, search = "") {
   const query = new URLSearchParams(search);
   query.set("_view", page);

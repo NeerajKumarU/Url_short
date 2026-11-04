@@ -22,6 +22,7 @@
       <div class="topbar-popover">
         <div class="popover-heading"><div><span class="eyebrow">Workspace signals</span><h2>Notifications</h2></div>{% if shell_notification_count %}<span class="count-chip">{{ shell_notification_count }} open</span>{% endif %}</div>
         <a class="notification-item" href="{% url 'anomaly_list' %}"><span class="notification-icon"><svg><use href="#icon-alert"></use></svg></span><span><b>Analytics anomalies</b><small>{% if shell_anomaly_count %}{{ shell_anomaly_count }} unresolved signal{{ shell_anomaly_count|pluralize }}{% else %}No unresolved signals{% endif %}</small></span></a>
+        <a class="notification-item" href="{% url 'react_shell_path' path='security' %}"><span class="notification-icon"><svg><use href="#icon-health"></use></svg></span><span><b>OrbitShield incidents</b><small>{% if shell_security_count %}{{ shell_security_count }} high-risk incident{{ shell_security_count|pluralize }}{% else %}No high-risk incidents{% endif %}</small></span></a>
         {% if shell_can_admin %}<a class="notification-item" href="{% url 'approval_list' %}"><span class="notification-icon"><svg><use href="#icon-approval"></use></svg></span><span><b>Approval queue</b><small>{% if shell_approval_count %}{{ shell_approval_count }} request{{ shell_approval_count|pluralize }} waiting{% else %}Nothing waiting for review{% endif %}</small></span></a>{% endif %}
       </div>
     </details>

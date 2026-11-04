@@ -20,6 +20,7 @@ from .link_services import public_url_for_link
 from .models import ClickEvent, ConversionEvent, WorkspaceMembership, urlModel
 from .permissions import require_workspace_role
 from .selectors import campaigns_for_workspace, get_current_workspace, links_for_workspace
+from .security_views import build_security_payload
 
 
 def _breakdown(queryset, field, limit=None):
@@ -70,6 +71,7 @@ def _shell_payload(request, workspace):
         "anomaly_count": context.get("shell_anomaly_count", 0),
         "approval_count": context.get("shell_approval_count", 0),
         "notification_count": context.get("shell_notification_count", 0),
+        "security_count": context.get("shell_security_count", 0),
         "csrf_token": get_token(request),
     }
 
@@ -298,6 +300,7 @@ def react_bootstrap(request):
             },
             "can_admin": application_shell(request).get("shell_can_admin", False),
         },
+        "security": lambda: build_security_payload(request, workspace),
         "shell": lambda: {},
     }
     if page_name not in builders:

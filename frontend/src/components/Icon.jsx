@@ -24,6 +24,13 @@ const paths = {
   download: <><path d="M12 3v12M7 10l5 5 5-5M4 21h16"/></>,
   more: <><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></>,
   filter: <><path d="M4 5h16M7 12h10M10 19h4"/></>,
+  shield: <><path d="M12 3 20 6v5c0 5-3.4 8.6-8 10-4.6-1.4-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></>,
+  bot: <><rect x="4" y="7" width="16" height="12" rx="3"/><path d="M12 3v4M8 12h.01M16 12h.01M8 16h8"/></>,
+  location: <><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></>,
+  pulse: <><path d="M3 12h4l2-6 4 12 2-6h6"/></>,
+  lock: <><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></>,
+  unlock: <><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 7-2.6"/></>,
+  play: <><path d="m8 5 11 7-11 7V5Z"/></>,
 };
 
 export default function Icon({ name, className = "", ...props }) {

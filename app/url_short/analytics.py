@@ -3,6 +3,8 @@ from urllib.parse import urlparse
 
 from django.conf import settings
 
+from .orbitshield.fingerprints import fingerprint_ip
+
 
 def classify_browser(user_agent):
     value = (user_agent or "").lower()
@@ -56,7 +58,7 @@ def classify_referrer(referrer):
     return "Other"
 
 
-def event_details(request):
+def event_details(request, *, fingerprint_namespace=""):
     user_agent = request.META.get("HTTP_USER_AGENT", "")[:1000]
     referrer = request.META.get("HTTP_REFERER", "")[:2048]
     remote_address = request.META.get("REMOTE_ADDR")
@@ -76,6 +78,7 @@ def event_details(request):
         # REMOTE_ADDR is intentionally used instead of trusting a client-supplied
         # X-Forwarded-For header. Deployments can add trusted-proxy handling later.
         "ip_address": ip_address if settings.ORBITLINK_STORE_VISITOR_IPS else None,
+        "ip_fingerprint": fingerprint_ip(ip_address, fingerprint_namespace),
         "user_agent": user_agent,
         "referrer": referrer,
         "browser": classify_browser(user_agent),

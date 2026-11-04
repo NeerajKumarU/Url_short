@@ -256,6 +256,13 @@ def redirecturl(request, shorturl):
     except urlModel.DoesNotExist as exc:
         raise Http404("Short URL not found") from exc
 
+    if obj.security_disabled or (obj.suspended_until and obj.suspended_until > timezone.now()):
+        return render(
+            request,
+            "link_security_suspended.html",
+            {"link": obj},
+            status=423,
+        )
     if obj.is_expired:
         return render(request, "link_expired.html", {"link": obj}, status=410)
     if obj.safety_status == urlModel.SafetyStatus.MALICIOUS:
@@ -291,7 +298,7 @@ def redirecturl(request, shorturl):
         resolved_destination=destination,
         bot_classification=bot.classification,
         bot_reason=bot.reason,
-        **event_details(request),
+        **event_details(request, fingerprint_namespace=f"workspace:{obj.workspace_id or 'legacy'}"),
     )
     _metrics["redirects_total"] += 1
     redirect_destination = (

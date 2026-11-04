@@ -18,6 +18,7 @@ const groups = [
     { href: "/workspaces/", label: "Workspaces", icon: "workspace" },
     { href: "/domains/", label: "Domains", icon: "globe" },
     { href: "/analytics/anomalies/", label: "Anomalies", icon: "alert", count: "anomaly_count" },
+    { to: "/security", label: "Security Center", icon: "shield", count: "security_count" },
     { href: "/approvals/", label: "Approvals", icon: "approval", permission: "can_admin", count: "approval_count" },
     { href: "/audit/", label: "Audit log", icon: "audit", permission: "can_admin" },
   ]],

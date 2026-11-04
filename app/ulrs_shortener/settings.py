@@ -177,6 +177,7 @@ EMAIL_USE_TLS = os.environ.get('DJANGO_EMAIL_USE_TLS', 'False') == 'True'
 DEFAULT_FROM_EMAIL = os.environ.get('DJANGO_DEFAULT_FROM_EMAIL', 'OrbitLink <noreply@localhost>')
 ORBITLINK_TRUST_CLOUDFLARE_GEO = os.environ.get('ORBITLINK_TRUST_CLOUDFLARE_GEO', 'False') == 'True'
 ORBITLINK_STORE_VISITOR_IPS = os.environ.get('ORBITLINK_STORE_VISITOR_IPS', 'True') == 'True'
+ORBITLINK_IP_FINGERPRINT_SECRET = os.environ.get('ORBITLINK_IP_FINGERPRINT_SECRET', SECRET_KEY)
 ORBITLINK_AI_API_KEY = os.environ.get('ORBITLINK_AI_API_KEY', '')
 ORBITLINK_AI_ENDPOINT = os.environ.get('ORBITLINK_AI_ENDPOINT', 'https://api.openai.com/v1/responses')
 ORBITLINK_AI_MODEL = os.environ.get('ORBITLINK_AI_MODEL', 'gpt-4.1-mini')

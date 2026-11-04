@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Link temporarily unavailable — OrbitLink{% endblock %}
+{% block content %}
+  <section class="status-page shell">
+    <div class="status-orb" aria-hidden="true">!</div>
+    <span class="eyebrow">Security review</span>
+    <h1>This link is temporarily unavailable.</h1>
+    <p><strong>/{{ link.shorturl }}</strong> has been paused by OrbitShield while its traffic is reviewed. No destination data has been removed.</p>
+    {% if link.suspended_until and not link.security_disabled %}<p>Access is scheduled to resume after {{ link.suspended_until|date:"M j, Y H:i T" }} unless an administrator changes the review status.</p>{% endif %}
+    <a class="button button-primary" href="{% url 'home' %}">Go to OrbitLink</a>
+  </section>
+{% endblock %}

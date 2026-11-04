@@ -11,12 +11,18 @@ from . import (
     intelligence_views,
     link_intelligence_views,
     react_views,
+    security_views,
     workspace_views,
 )
 
 
 urlpatterns = [
     path("react/api/bootstrap/", react_views.react_bootstrap, name="react_bootstrap"),
+    path("react/api/security/overview/", security_views.security_overview, name="security_overview"),
+    path("react/api/security/incidents/<int:pk>/", security_views.security_incident_detail, name="security_incident_detail"),
+    path("react/api/security/incidents/<int:pk>/action/", security_views.security_incident_action, name="security_incident_action"),
+    path("react/api/security/settings/", security_views.security_settings_update, name="security_settings_update"),
+    path("react/api/security/scan/", security_views.security_scan_now, name="security_scan_now"),
     path("react/", react_views.react_shell, name="react_shell"),
     path("react/<path:path>", react_views.react_shell, name="react_shell_path"),
     path("", views.home, name="home"),

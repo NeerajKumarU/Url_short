@@ -15,8 +15,10 @@ from .models import (
     LinkVersion,
     NotificationDelivery,
     RedirectRule,
+    SecurityIncident,
     Workspace,
     WorkspaceMembership,
+    WorkspaceSecuritySettings,
     WebhookDelivery,
     WebhookEndpoint,
     urlModel,
@@ -256,6 +258,21 @@ class AnalyticsAnomalyAdmin(admin.ModelAdmin):
     list_filter = ("anomaly_type", "severity", "workspace", "detected_at")
     search_fields = ("explanation", "link__shorturl", "workspace__name")
     readonly_fields = ("workspace", "link", "campaign", "anomaly_type", "severity", "baseline_value", "observed_value", "explanation", "detected_at")
+
+
+@admin.register(SecurityIncident)
+class SecurityIncidentAdmin(admin.ModelAdmin):
+    list_display = ("severity", "risk_score", "threat_type", "workspace", "link", "status", "last_detected_at")
+    list_filter = ("severity", "status", "threat_type", "workspace")
+    search_fields = ("link__shorturl", "workspace__name", "explanation")
+    readonly_fields = ("workspace", "link", "threat_type", "severity", "risk_score", "signals", "explanation", "observed_clicks", "baseline_clicks", "first_detected_at", "last_detected_at", "created_at", "updated_at")
+
+
+@admin.register(WorkspaceSecuritySettings)
+class WorkspaceSecuritySettingsAdmin(admin.ModelAdmin):
+    list_display = ("workspace", "monitoring_enabled", "sensitivity", "alert_threshold", "email_alerts", "webhook_alerts", "automatic_throttling")
+    list_filter = ("monitoring_enabled", "sensitivity", "email_alerts", "webhook_alerts", "automatic_throttling")
+    search_fields = ("workspace__name",)
 
 
 @admin.register(NotificationDelivery)
