@@ -1,0 +1,10 @@
+import Icon from "../components/Icon";
+import PageHeader from "../components/PageHeader";
+import PageState from "../components/PageState";
+import { usePageData } from "../hooks/usePageData";
+import { date, number } from "../utils/format";
+
+function Campaigns({ data }) {
+  return <section className="ops-shell shell"><PageHeader eyebrow={data.workspace_name} title="Campaign intelligence" description="Group related links, coordinate launch windows, and compare clicks with attributed conversions." action={{ href: "/campaigns/new/", label: "Create campaign" }}/>{data.campaigns.length ? <div className="campaign-grid">{data.campaigns.map((campaign) => <article className="glass-card campaign-card" key={campaign.id}><div className="campaign-card-head"><span className="campaign-icon"><Icon name="campaign"/></span><span className={`status-pill ${campaign.status === "ACTIVE" ? "status-approved" : campaign.status === "PAUSED" ? "status-warning" : ""}`}>{campaign.status_label}</span></div><div><h2>{campaign.name}</h2><p>{campaign.description || "No description added yet."}</p></div><div className="campaign-stats"><div><span>Links</span><strong>{number(campaign.links)}</strong></div><div><span>Clicks</span><strong>{number(campaign.clicks)}</strong></div><div><span>Conversions</span><strong>{number(campaign.conversions)}</strong></div></div><div className="campaign-schedule"><Icon name="audit"/><span>{campaign.start_at ? date(campaign.start_at) : "Any time"} <i>→</i> {campaign.end_at ? date(campaign.end_at) : "Open ended"}</span></div><div className="campaign-card-actions"><a className="button button-secondary" href={`/campaigns/${campaign.id}/edit/`}>Edit campaign</a></div></article>)}</div> : <div className="glass-card empty-state"><h2>No campaigns yet</h2><p>Create one to group links and measure a launch as a whole.</p><a className="button button-primary" href="/campaigns/new/">Create campaign</a></div>}</section>;
+}
+export default function CampaignsPage() { const state = usePageData("campaigns"); return <PageState state={state}>{(data) => <Campaigns data={data}/>}</PageState>; }

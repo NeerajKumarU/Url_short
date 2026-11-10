@@ -10,11 +10,21 @@ from . import (
     integration_views,
     intelligence_views,
     link_intelligence_views,
+    react_views,
+    security_views,
     workspace_views,
 )
 
 
 urlpatterns = [
+    path("react/api/bootstrap/", react_views.react_bootstrap, name="react_bootstrap"),
+    path("react/api/security/overview/", security_views.security_overview, name="security_overview"),
+    path("react/api/security/incidents/<int:pk>/", security_views.security_incident_detail, name="security_incident_detail"),
+    path("react/api/security/incidents/<int:pk>/action/", security_views.security_incident_action, name="security_incident_action"),
+    path("react/api/security/settings/", security_views.security_settings_update, name="security_settings_update"),
+    path("react/api/security/scan/", security_views.security_scan_now, name="security_scan_now"),
+    path("react/", react_views.react_shell, name="react_shell"),
+    path("react/<path:path>", react_views.react_shell, name="react_shell_path"),
     path("", views.home, name="home"),
     path("product/", views.product_overview, name="product_overview"),
     path("health", views.health, name="health"),
@@ -24,6 +34,8 @@ urlpatterns = [
     path("login/", auth_views.LoginView.as_view(), name="login"),
     path("logout/", auth_views.LogoutView.as_view(), name="logout"),
     path("dashboard/", views.dashboard, name="dashboard"),
+    path("analytics/", views.analytics_overview, name="analytics_overview"),
+    path("audience/", views.audience_overview, name="audience_overview"),
     path("links/", views.my_links, name="my_links"),
     path("links/new/", views.create_link_page, name="create_link_page"),
     path("qr-codes/", views.qr_library, name="qr_library"),

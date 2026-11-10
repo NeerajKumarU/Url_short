@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %}Signal Command Center — OrbitLink{% endblock %}
 {% block body_class %}dashboard-page signal-command-page{% endblock %}
-{% block page_styles %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=20261103-2">{% endblock %}
+{% block page_styles %}<link rel="stylesheet" href="{% static 'css/dashboard.css' %}?v=20261103-3">{% endblock %}
 {% block content %}
 <div class="signal-command shell">
   <header class="command-heading">
@@ -25,12 +25,7 @@
       <span class="orb-metric-icon"><svg><use href="#icon-approval"></use></svg></span><div><small>Conversions</small><strong id="live-conversions">{{ total_conversions }}</strong><em class="{% if conversion_growth < 0 %}negative{% endif %}">{% if conversion_growth >= 0 %}↗ +{% else %}↘ {% endif %}{{ conversion_growth }}%</em></div><i class="metric-connector" aria-hidden="true"></i>
     </article>
 
-    <div class="signal-globe" aria-hidden="true">
-      <div class="globe-orbit orbit-one"><i></i></div><div class="globe-orbit orbit-two"><i></i></div><div class="globe-orbit orbit-three"><i></i></div>
-      <div class="globe-sphere">
-        <div class="globe-world"></div>
-        <svg viewBox="0 0 360 360"><g class="network-lines"><path d="M74 96L139 57L211 74L283 117L302 195L253 281L173 307L99 263L53 187Z"/><path d="M74 96L211 74L302 195L173 307L53 187L139 57L253 281L99 263L283 117Z"/><path d="M99 263L180 179L283 117M74 96L180 179L253 281M139 57L180 179L173 307M53 187L180 179L302 195"/></g><g class="network-nodes"><circle cx="74" cy="96" r="5"/><circle cx="139" cy="57" r="5"/><circle cx="211" cy="74" r="5"/><circle cx="283" cy="117" r="5"/><circle cx="302" cy="195" r="5"/><circle cx="253" cy="281" r="5"/><circle cx="173" cy="307" r="5"/><circle cx="99" cy="263" r="5"/><circle cx="53" cy="187" r="5"/><circle cx="180" cy="179" r="7"/></g></svg>
-      </div>
+    <div class="signal-globe" data-hologram-anchor aria-hidden="true">
       <div class="globe-pedestal"><i></i><i></i><i></i></div>
     </div>
   </section>

@@ -230,6 +230,9 @@ class urlModel(models.Model):
     )
     safety_detail = models.CharField(max_length=500, blank=True)
     safety_checked_at = models.DateTimeField(null=True, blank=True)
+    security_disabled = models.BooleanField(default=False, db_index=True)
+    suspended_until = models.DateTimeField(null=True, blank=True, db_index=True)
+    suspension_reason = models.CharField(max_length=500, blank=True)
 
     class Meta:
         indexes = [
@@ -244,6 +247,10 @@ class urlModel(models.Model):
     @property
     def status_label(self):
         now = timezone.now()
+        if self.security_disabled:
+            return "Security blocked"
+        if self.suspended_until and self.suspended_until > now:
+            return "Suspended"
         if not self.is_enabled:
             return "Disabled"
         if self.approval_status != self.ApprovalStatus.APPROVED:
@@ -278,6 +285,7 @@ class ClickEvent(models.Model):
     )
     clicked_at = models.DateTimeField(auto_now_add=True, db_index=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True, db_index=True)
+    ip_fingerprint = models.CharField(max_length=64, blank=True, db_index=True)
     user_agent = models.TextField(blank=True)
     referrer = models.CharField(max_length=2048, blank=True)
     browser = models.CharField(max_length=32, default="Other")
@@ -790,6 +798,124 @@ class AnalyticsAnomaly(models.Model):
 
     def __str__(self):
         return f"{self.get_anomaly_type_display()} · {self.workspace}"
+
+
+class WorkspaceSecuritySettings(models.Model):
+    class Sensitivity(models.TextChoices):
+        RELAXED = "RELAXED", "Relaxed"
+        BALANCED = "BALANCED", "Balanced"
+        HIGH = "HIGH", "High sensitivity"
+
+    workspace = models.OneToOneField(
+        Workspace,
+        on_delete=models.CASCADE,
+        related_name="security_settings",
+    )
+    monitoring_enabled = models.BooleanField(default=True)
+    sensitivity = models.CharField(
+        max_length=12,
+        choices=Sensitivity.choices,
+        default=Sensitivity.BALANCED,
+    )
+    alert_threshold = models.PositiveSmallIntegerField(default=60)
+    email_alerts = models.BooleanField(default=True)
+    webhook_alerts = models.BooleanField(default=True)
+    automatic_throttling = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [
+            models.CheckConstraint(
+                check=Q(alert_threshold__gte=20) & Q(alert_threshold__lte=100),
+                name="security_alert_threshold_20_100",
+            )
+        ]
+
+    def __str__(self):
+        return f"Security settings · {self.workspace}"
+
+
+class SecurityIncident(models.Model):
+    class ThreatType(models.TextChoices):
+        TRAFFIC_SPIKE = "TRAFFIC_SPIKE", "Traffic spike"
+        REPEATED_IP = "REPEATED_IP", "Repeated visitor activity"
+        BOT_ACTIVITY = "BOT_ACTIVITY", "Automated bot activity"
+        GEO_ANOMALY = "GEO_ANOMALY", "Geographic anomaly"
+        USER_AGENT_ANOMALY = "USER_AGENT_ANOMALY", "User-agent anomaly"
+        CLICK_VELOCITY = "CLICK_VELOCITY", "Abnormal click velocity"
+        COMPOSITE = "COMPOSITE", "Multiple threat signals"
+
+    class Severity(models.TextChoices):
+        LOW = "LOW", "Low"
+        MEDIUM = "MEDIUM", "Medium"
+        HIGH = "HIGH", "High"
+        CRITICAL = "CRITICAL", "Critical"
+
+    class Status(models.TextChoices):
+        OPEN = "OPEN", "Open"
+        INVESTIGATING = "INVESTIGATING", "Investigating"
+        RESOLVED = "RESOLVED", "Resolved"
+        DISMISSED = "DISMISSED", "False positive"
+
+    workspace = models.ForeignKey(
+        Workspace,
+        on_delete=models.CASCADE,
+        related_name="security_incidents",
+    )
+    link = models.ForeignKey(
+        urlModel,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="security_incidents",
+    )
+    threat_type = models.CharField(max_length=32, choices=ThreatType.choices, db_index=True)
+    severity = models.CharField(max_length=12, choices=Severity.choices, db_index=True)
+    status = models.CharField(max_length=16, choices=Status.choices, default=Status.OPEN, db_index=True)
+    risk_score = models.PositiveSmallIntegerField(db_index=True)
+    signals = models.JSONField(default=list)
+    explanation = models.CharField(max_length=1000)
+    observed_clicks = models.PositiveIntegerField(default=0)
+    baseline_clicks = models.FloatField(default=0)
+    first_detected_at = models.DateTimeField(default=timezone.now, db_index=True)
+    last_detected_at = models.DateTimeField(default=timezone.now, db_index=True)
+    investigated_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="investigated_security_incidents",
+    )
+    resolution_note = models.TextField(blank=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ("-risk_score", "-last_detected_at")
+        indexes = [
+            models.Index(fields=("workspace", "status", "-last_detected_at"), name="sec_inc_ws_status_idx"),
+            models.Index(fields=("workspace", "severity", "-last_detected_at"), name="sec_inc_ws_sev_idx"),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                check=Q(risk_score__gte=0) & Q(risk_score__lte=100),
+                name="security_incident_score_0_100",
+            ),
+            models.UniqueConstraint(
+                fields=("workspace", "link"),
+                condition=Q(
+                    link__isnull=False,
+                    status__in=("OPEN", "INVESTIGATING"),
+                ),
+                name="one_active_security_incident_per_link",
+            ),
+        ]
+
+    def __str__(self):
+        alias = self.link.shorturl if self.link_id else "deleted-link"
+        return f"{self.get_severity_display()} · /{alias} · {self.risk_score}"
 
 
 class NotificationDelivery(models.Model):

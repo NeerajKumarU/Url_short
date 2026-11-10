@@ -256,6 +256,13 @@ def redirecturl(request, shorturl):
     except urlModel.DoesNotExist as exc:
         raise Http404("Short URL not found") from exc
 
+    if obj.security_disabled or (obj.suspended_until and obj.suspended_until > timezone.now()):
+        return render(
+            request,
+            "link_security_suspended.html",
+            {"link": obj},
+            status=423,
+        )
     if obj.is_expired:
         return render(request, "link_expired.html", {"link": obj}, status=410)
     if obj.safety_status == urlModel.SafetyStatus.MALICIOUS:
@@ -291,7 +298,7 @@ def redirecturl(request, shorturl):
         resolved_destination=destination,
         bot_classification=bot.classification,
         bot_reason=bot.reason,
-        **event_details(request),
+        **event_details(request, fingerprint_namespace=f"workspace:{obj.workspace_id or 'legacy'}"),
     )
     _metrics["redirects_total"] += 1
     redirect_destination = (
@@ -486,6 +493,93 @@ def dashboard(request):
         "referrer_breakdown": _breakdown(events, "referrer_source"),
     }
     return render(request, "dashboard.html", context)
+
+
+@login_required
+def analytics_overview(request):
+    """Workspace-scoped traffic intelligence using recorded click and conversion data."""
+    workspace = get_current_workspace(request)
+    require_workspace_role(request.user, workspace, WorkspaceMembership.Role.VIEWER)
+    links = links_for_workspace(request.user, workspace)
+    events = ClickEvent.objects.filter(short_url__in=links)
+    conversions = ConversionEvent.objects.filter(link__in=links)
+    today = timezone.localdate()
+    range_start = today - timedelta(days=29)
+    daily_counts = {
+        row["day"]: row["value"]
+        for row in events.filter(clicked_at__date__gte=range_start)
+        .annotate(day=TruncDate("clicked_at"))
+        .values("day")
+        .annotate(value=Count("id"))
+    }
+    maximum = max(daily_counts.values(), default=0)
+    timeline = []
+    for offset in range(30):
+        day = range_start + timedelta(days=offset)
+        value = daily_counts.get(day, 0)
+        timeline.append({
+            "date": day,
+            "value": value,
+            "percent": round((value / maximum) * 100) if maximum else 0,
+        })
+    total_clicks = events.count()
+    unique_visitors = (
+        events.exclude(ip_address__isnull=True)
+        .exclude(ip_address="")
+        .values("ip_address")
+        .distinct()
+        .count()
+    )
+    total_conversions = conversions.count()
+    context = {
+        "workspace": workspace,
+        "total_links": links.count(),
+        "total_clicks": total_clicks,
+        "unique_visitors": unique_visitors,
+        "total_conversions": total_conversions,
+        "conversion_rate": round((total_conversions / total_clicks) * 100, 1) if total_clicks else 0,
+        "timeline": timeline,
+        "browser_breakdown": _breakdown(events, "browser")[:6],
+        "device_breakdown": _breakdown(events, "device_type")[:6],
+        "operating_system_breakdown": _breakdown(events, "operating_system")[:6],
+        "referrer_breakdown": _breakdown(events, "referrer_source")[:6],
+        "top_links": links.annotate(event_count=Count("clicks")).order_by("-event_count", "shorturl")[:6],
+    }
+    return render(request, "analytics/overview.html", context)
+
+
+@login_required
+def audience_overview(request):
+    """Workspace-scoped geographic and technology audience intelligence."""
+    workspace = get_current_workspace(request)
+    require_workspace_role(request.user, workspace, WorkspaceMembership.Role.VIEWER)
+    links = links_for_workspace(request.user, workspace)
+    events = ClickEvent.objects.filter(short_url__in=links)
+    human_events = events.filter(bot_classification=ClickEvent.BotClassification.HUMAN)
+    known_visitors = events.exclude(ip_address__isnull=True).exclude(ip_address="")
+    unique_visitors = known_visitors.values("ip_address").distinct().count()
+    returning_visitors = (
+        known_visitors.values("ip_address")
+        .annotate(visits=Count("id"))
+        .filter(visits__gt=1)
+        .count()
+    )
+    countries = _breakdown(events.exclude(country_code=""), "country_code")[:10]
+    context = {
+        "workspace": workspace,
+        "total_events": events.count(),
+        "human_events": human_events.count(),
+        "unique_visitors": unique_visitors,
+        "returning_visitors": returning_visitors,
+        "returning_rate": round((returning_visitors / unique_visitors) * 100, 1) if unique_visitors else 0,
+        "country_breakdown": countries,
+        "region_breakdown": _breakdown(events.exclude(region=""), "region")[:8],
+        "city_breakdown": _breakdown(events.exclude(city=""), "city")[:8],
+        "device_breakdown": _breakdown(events, "device_type")[:6],
+        "browser_breakdown": _breakdown(events, "browser")[:6],
+        "globe_country_codes": [item["label"] for item in countries],
+    }
+    return render(request, "analytics/audience.html", context)
 
 
 @login_required

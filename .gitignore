@@ -1,0 +1,7 @@
+.tools/
+.visual-qa/
+**/__pycache__/
+*.py[cod]
+frontend/node_modules/
+app/url_short/static/react/
+app/staticfiles/

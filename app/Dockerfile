@@ -1,8 +1,17 @@
-# --- Build stage: compile deps with full build tools available ---
+# --- Frontend stage: produce deterministic Vite assets for Django staticfiles ---
+FROM node:24.22.2-alpine AS frontend-builder
+WORKDIR /build/frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+COPY app/url_short/static/css /build/app/url_short/static/css
+RUN npm run build
+
+# --- Python build stage: compile deps with full build tools available ---
 FROM python:3.11-slim AS builder
 WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev && rm -rf /var/lib/apt/lists/*
-COPY requirements.txt .
+COPY app/requirements.txt .
 # Installed into the image's global site-packages (not --user), so it's available
 # to any user that later runs python — root during the build steps below, and
 # appuser at container runtime — with no $HOME-dependent path to get wrong.
@@ -18,7 +27,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends libpq5 curl && 
 # Copies both the installed packages (lib/python3.11/site-packages) and their
 # console scripts (bin/gunicorn, etc.) — both live under /usr/local in this image.
 COPY --from=builder /usr/local /usr/local
-COPY . .
+COPY app/ .
+COPY --from=frontend-builder /build/app/url_short/static/react ./url_short/static/react
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1

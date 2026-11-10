@@ -23,9 +23,9 @@
 
     <div class="nav-section">
       <span class="nav-section-label">Marketing</span>
-      <a class="sidebar-link dashboard-core-link" href="{% url 'dashboard' %}#traffic-intelligence"><svg class="nav-icon"><use href="#icon-chart"></use></svg><span class="nav-label">Analytics</span></a>
+      <a class="sidebar-link dashboard-core-link {% if current == 'analytics_overview' %}is-active{% endif %}" href="{% url 'analytics_overview' %}" {% if current == 'analytics_overview' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-chart"></use></svg><span class="nav-label">Analytics</span></a>
       <a class="sidebar-link dashboard-core-link {% if current == 'campaign_list' or current == 'campaign_create' or current == 'campaign_edit' %}is-active{% endif %}" href="{% url 'campaign_list' %}"><svg class="nav-icon"><use href="#icon-campaign"></use></svg><span class="nav-label">Campaigns</span></a>
-      <a class="sidebar-link dashboard-core-link dashboard-audience-link" href="{% url 'dashboard' %}#live-activity"><svg class="nav-icon"><use href="#icon-users"></use></svg><span class="nav-label">Audience</span></a>
+      <a class="sidebar-link dashboard-core-link dashboard-audience-link {% if current == 'audience_overview' %}is-active{% endif %}" href="{% url 'audience_overview' %}" {% if current == 'audience_overview' %}aria-current="page"{% endif %}><svg class="nav-icon"><use href="#icon-users"></use></svg><span class="nav-label">Audience</span></a>
       <a class="sidebar-link {% if current == 'utm_builder' %}is-active{% endif %}" href="{% url 'utm_builder' %}"><svg class="nav-icon"><use href="#icon-tool"></use></svg><span class="nav-label">UTM builder</span></a>
     </div>
 
@@ -34,6 +34,7 @@
       <a class="sidebar-link {% if current == 'workspace_list' %}is-active{% endif %}" href="{% url 'workspace_list' %}"><svg class="nav-icon"><use href="#icon-workspace"></use></svg><span class="nav-label">Workspaces</span></a>
       <a class="sidebar-link {% if current == 'custom_domain_list' %}is-active{% endif %}" href="{% url 'custom_domain_list' %}"><svg class="nav-icon"><use href="#icon-globe"></use></svg><span class="nav-label">Domains</span></a>
       <a class="sidebar-link {% if current == 'anomaly_list' %}is-active{% endif %}" href="{% url 'anomaly_list' %}"><svg class="nav-icon"><use href="#icon-alert"></use></svg><span class="nav-label">Anomalies</span>{% if shell_anomaly_count %}<span class="nav-count">{{ shell_anomaly_count }}</span>{% endif %}</a>
+      <a class="sidebar-link" href="{% url 'react_shell_path' path='security' %}"><svg class="nav-icon"><use href="#icon-health"></use></svg><span class="nav-label">Security Center</span>{% if shell_security_count %}<span class="nav-count">{{ shell_security_count }}</span>{% endif %}</a>
       {% if shell_can_admin %}<a class="sidebar-link {% if current == 'approval_list' %}is-active{% endif %}" href="{% url 'approval_list' %}"><svg class="nav-icon"><use href="#icon-approval"></use></svg><span class="nav-label">Approvals</span>{% if shell_approval_count %}<span class="nav-count">{{ shell_approval_count }}</span>{% endif %}</a><a class="sidebar-link {% if current == 'workspace_audit_log' %}is-active{% endif %}" href="{% url 'workspace_audit_log' %}"><svg class="nav-icon"><use href="#icon-audit"></use></svg><span class="nav-label">Audit log</span></a>{% endif %}
     </div>
 
