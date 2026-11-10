@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.templatetags.static import static
 from django.test import TestCase
 
 from .models import ClickEvent, urlModel
@@ -20,7 +21,7 @@ class ReactMigrationAdapterTests(TestCase):
         response = self.client.get("/react/analytics")
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="root"')
-        self.assertContains(response, "react/app.js")
+        self.assertContains(response, static("react/app.js"))
 
     def test_bootstrap_requires_authentication(self):
         self.client.logout()

@@ -23,7 +23,11 @@ VALID_ACTIONS = {
 def apply_incident_action(*, incident, actor, action, note=""):
     if action not in VALID_ACTIONS:
         raise ValidationError("Unsupported security action.")
-    incident = SecurityIncident.objects.select_for_update().select_related("link", "workspace").get(pk=incident.pk)
+    incident = (
+        SecurityIncident.objects.select_for_update(of=("self",))
+        .select_related("link", "workspace")
+        .get(pk=incident.pk)
+    )
     link = urlModel.objects.select_for_update().filter(pk=incident.link_id).first() if incident.link_id else None
     now = timezone.now()
     note = (note or "").strip()[:2000]
